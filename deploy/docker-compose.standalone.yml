@@ -12,7 +12,7 @@
 
 services:
   sub2api:
-    image: weishaw/sub2api:latest
+    image: crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest
     container_name: sub2api
     restart: unless-stopped
     security_opt:
