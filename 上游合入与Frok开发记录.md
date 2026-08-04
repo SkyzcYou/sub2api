@@ -66,7 +66,40 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
-当前没有已完成的上游合入记录。下一次从 `upstream/main` 合入后，追加在本节顶部，最新记录优先。
+### 2026-08-04：同步 upstream/main 至 0.1.171
+
+- 合入前定制分支提交：`49b3380fb`
+- 上游共同基线提交：`7e2e9ba05`
+- 本次合入的上游目标提交：`00b859617`
+- 上游提交范围：`7e2e9ba05..00b859617`
+- 上游最新提交日期：`2026-08-04T21:55:34+08:00`
+- 上游提交数量：`51`
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`2ea4f870f608ad9b2139cda52abd160a159738d4`
+- 关联上游 PR、Issue 或 Release：无（上游版本 `0.1.171`）
+- 主要变更：
+  - 新增腾讯天御和阿里云验证码 2.0 支持，并将验证码证明接入 OAuth 待确认注册流程。
+  - 修复 Token 刷新轮换竞态、订阅并发续期、Stripe 退款幂等和退款余额强制确认等稳定性与资金安全问题。
+  - 完善 OpenAI/Codex 出站身份、客户端版本同步和容量保护；Codex 版本同步主路径改用 `/releases/latest` 并保留回退路径。
+  - 修复模型广场图片模型价格展示、Responses 审计文本解析、Messages 临时账号故障切换等问题。
+  - 新增复合平台 reasoning effort 策略，并补充 OAuth、Passkey、设置契约和支付相关测试及云服务 SDK 依赖。
+- 定制代码影响：
+  - `site_favicon` 定制链路继续保留：设置常量、默认值、公开设置、管理端上传、SSR 注入、运行时 favicon 更新及图片 MIME 推断均未被覆盖。
+  - Compose/ACR 定制、OpenResty 脚本及部署文档不在本次上游冲突范围内；上游新增设置字段需要随数据库设置接口一起部署。
+- 冲突处理：
+  - `backend/internal/service/setting_parse.go`：保留上游新增的腾讯云、阿里云验证码字段和 Codex 版本字段，同时保留定制字段 `SiteFavicon: settings[SettingKeySiteFavicon]`。
+- 验证结果：
+  - `git diff --check 49b3380fb 2ea4f870f`：通过。
+  - `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `pnpm typecheck`：通过。
+  - `pnpm test:run`：`206` 个测试文件通过，`1` 个测试文件失败（`2` 个断言失败，另有 `10` 个未处理 mock 错误）。失败对应的回滚 API 旧断言和 `GroupsView` 旧 mock 在合入前已存在，未由本次冲突解决引入。
+  - `pnpm build`：通过；仅有 Vite 分包体积和动态导入提示。
+- 镜像或部署验证：未执行。本次只完成本地代码合入和验证，未重新构建或推送 ACR；生产环境现有 `latest` 镜像仍需后续单独构建发布后才包含本次上游代码。
+- 合入总结：
+  - 本次同步带来验证码供应商扩展、认证流程加固、Codex/OpenAI 兼容性和计费并发可靠性改进，同时保留 `xingliux` 的独立 favicon 定制。
+  - 后续发布前应重新执行 Docker build/push，并在生产环境验证验证码配置、OAuth 注册、Codex 版本同步和长请求链路；前端全量单测中的既有失败项也应单独清理。
+
+后续每次从 `upstream/main` 合入时，继续在本条记录上方追加新记录，最新记录优先。
 
 ### 记录模板
 
