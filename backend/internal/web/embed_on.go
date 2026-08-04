@@ -220,13 +220,13 @@ func (s *FrontendServer) injectSettings(settingsJSON []byte) []byte {
 // injectSiteFavicon replaces the static favicon with a configured, browser-safe image URL.
 func injectSiteFavicon(html, settingsJSON []byte) []byte {
 	var cfg struct {
-		SiteLogo string `json:"site_logo"`
+		SiteFavicon string `json:"site_favicon"`
 	}
 	if err := json.Unmarshal(settingsJSON, &cfg); err != nil {
 		return html
 	}
 
-	logoURL := safeImageURL(cfg.SiteLogo)
+	logoURL := safeImageURL(cfg.SiteFavicon)
 	if logoURL == "" {
 		return html
 	}

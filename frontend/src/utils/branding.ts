@@ -4,10 +4,7 @@ export function updateFavicon(logoUrl: string): void {
   const sanitizedLogoUrl = sanitizeUrl(logoUrl, {
     allowRelative: true,
     allowDataUrl: true,
-  })
-  if (!sanitizedLogoUrl) {
-    return
-  }
+  }) || '/logo.svg'
 
   let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
   if (!link) {
@@ -16,6 +13,37 @@ export function updateFavicon(logoUrl: string): void {
     document.head.appendChild(link)
   }
 
-  link.type = sanitizedLogoUrl.endsWith('.svg') ? 'image/svg+xml' : 'image/x-icon'
+  const faviconMimeType = inferImageMimeType(sanitizedLogoUrl)
+  if (faviconMimeType) {
+    link.type = faviconMimeType
+  } else {
+    link.removeAttribute('type')
+  }
   link.href = sanitizedLogoUrl
+}
+
+function inferImageMimeType(url: string): string {
+  const dataUrlMatch = url.match(/^data:(image\/[a-z0-9.+-]+)[;,]/i)
+  if (dataUrlMatch) {
+    return dataUrlMatch[1].toLowerCase()
+  }
+
+  const path = url.split(/[?#]/, 1)[0].toLowerCase()
+  switch (path.slice(path.lastIndexOf('.'))) {
+    case '.svg':
+      return 'image/svg+xml'
+    case '.png':
+      return 'image/png'
+    case '.gif':
+      return 'image/gif'
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg'
+    case '.webp':
+      return 'image/webp'
+    case '.ico':
+      return 'image/x-icon'
+    default:
+      return ''
+  }
 }
