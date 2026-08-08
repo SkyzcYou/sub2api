@@ -66,6 +66,44 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-08：同步 upstream/main 至 0.1.172
+
+- 合入前定制分支提交：`217a3747e93d62d8b01f96d21c38dfd0cb317572`
+- 上游共同基线提交：`00b8596176809906993169c283671811ad04f58d`
+- 本次合入的上游目标提交：`cc67b1aca1d3b590609abef2fcd3a6ca31c5c651`
+- 上游提交范围：`00b8596176809906993169c283671811ad04f58d..cc67b1aca1d3b590609abef2fcd3a6ca31c5c651`
+- 上游最新提交日期：`2026-08-08T10:58:53+08:00`
+- 上游提交数量：`57`（其中非合并提交 `35`）
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`625ce123628645194815bb7dac058139cb75e4eb`
+- 关联上游 PR、Issue 或 Release：上游版本 `0.1.172`
+- 主要变更：
+  - 修复 OAuth pending exchange 账号接管风险；完善腾讯验证码区域、票据过期处理和 CSP 白名单。
+  - OpenAI OAuth 默认身份调整为 `codex-tui`，新增并加固路由提示，停止注入旧 beta 标记；Codex WebSocket 支持预热连接续用。
+  - 修复 Responses 工具 Schema 中 `parameters.type: null`、Responses 转 Anthropic 非法 content block，以及流内降载错误在输出前无法 failover 等兼容性问题。
+  - 新增上游实际响应模型审计和模型不匹配查询索引；管理端 Usage 页面可查看相关数据，并新增数据库迁移 `194`、`195`。
+  - 修复金额写入 `NUMERIC(20,8)` 前未量化、订阅每日额度未在午夜重置、系统日志落库失败缺少退避、EasyPay 错误乱码等计费与运维问题。
+  - 新增 Gemini 3.6 Flash、模型广场复合分组模型和 Grok 视频 task ID 支持；修复图片模型误冷却、Grok 405 failover、OAuth count-token HTML 错误误冷却等调度问题。
+  - 上游连接增加显式 TCP 拨号超时，并将 `nanoid` 从 `3.3.16` 升级到 `3.3.17` 以修复安全审计告警。
+- 定制代码影响：
+  - `site_favicon` 定制链路完整保留：设置常量、默认值、管理端上传、公开设置、SSR 注入和运行时 favicon 更新均仍存在。
+  - 设置解析和 `SettingsView.vue` 虽与上游改动重叠，但由 Git 自动合并且定制字段未被覆盖；ACR Compose 镜像地址、OpenResty 脚本和部署文档未被上游修改。
+  - 部署 `0.1.172` 时必须正常执行数据库迁移 `194_add_usage_log_upstream_response_model.sql` 和 `195_add_usage_log_upstream_model_mismatch_index_notx.sql`。
+- 冲突处理：无文本冲突；合并后人工核对了设置链路和 Compose/ACR 配置。
+- 验证结果：
+  - `git diff --check 217a3747e 625ce1236`：通过。
+  - `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `pnpm typecheck`：通过。
+  - `pnpm test:run`：`208/209` 个测试文件通过，`1477/1479` 个测试通过；仍有 `2` 个回滚 API 旧参数断言失败和 `10` 个 `GroupsView` 旧 mock 未处理错误，与上次合入记录相同，未由本次合入引入。
+  - `pnpm exec vitest run src/components/__tests__/TencentCaptchaGate.spec.ts src/views/auth/__tests__/TencentCaptchaForgotPassword.spec.ts src/components/admin/usage/__tests__/UsageTable.spec.ts src/views/admin/__tests__/UsageView.spec.ts src/views/admin/__tests__/SettingsView.spec.ts`：`5` 个测试文件、`78` 个测试全部通过。
+  - `pnpm build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web`：独立 favicon 注入测试未失败，但完整套件中的 `2` 条旧静态资源断言请求不存在的 `/logo.png`，回退到 HTML 后导致断言失败。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+- 镜像或部署验证：未执行。本次只完成本地上游合入和代码验证，ACR `latest` 仍是此前发布的 `0.1.171`，需要单独构建并推送后才包含 `0.1.172`。
+- 合入总结：
+  - 本次同步加强了 OAuth 安全、OpenAI/Codex 路由与流式恢复、计费精度、订阅额度重置和上游模型审计，并扩展 Gemini/Grok/复合模型支持。
+  - `xingliux` 的独立 favicon 和生产部署配置均保留；发布前应构建新镜像，并在生产环境确认迁移 `194`、`195`、Usage 上游响应模型字段和长连接 failover 行为。
+
 ### 2026-08-04：同步 upstream/main 至 0.1.171
 
 - 合入前定制分支提交：`49b3380fb`
