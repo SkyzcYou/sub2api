@@ -49,7 +49,9 @@ docker pull "$IMAGE:latest"
 ## Published Build
 
 - Source branch: `xingliux`
-- Source revision: working tree (includes independent `site_favicon` settings)
-- Local image ID: `sha256:e6de38b5c4e3d607f4b4fd42c83a5488c8b88ea20d6187cb7b1663fdc47f632b`
-- Local image size: `132778675` bytes
-- ACR manifest digest: `sha256:6da64017f8a23f9a7165591555d13a2a2d668c2d4ed1184c1f48a0f62f6b5400`
+- Version: `0.1.171`
+- Source revision: `9a370fb7e3e4e02cac1dc68971e1c48618381b38`
+- Platform: `linux/amd64`
+- Local image ID: `sha256:c67d43dd65551e133a7cfc145d5cd485e72b98b00be2eb7f7eff6b5f0a6eeadb`
+- Local image size: `131840691` bytes
+- ACR manifest digest: `sha256:d756f6bc85f76d8935ee09a269ef6f83f5833cf9c6933ab42248221bef26836c`
