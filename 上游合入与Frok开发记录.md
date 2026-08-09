@@ -66,6 +66,46 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-09：同步 upstream/main 至 0.1.173
+
+- 合入前定制分支提交：`858d9b55623840325e1d733a52419f1d7e08a4d8`
+- 上游共同基线提交：`cc67b1aca1d3b590609abef2fcd3a6ca31c5c651`
+- 本次合入的上游目标提交：`48eb3766d2da817b171b45bb3036d42575e42b8f`
+- 上游提交范围：`cc67b1aca1d3b590609abef2fcd3a6ca31c5c651..48eb3766d2da817b171b45bb3036d42575e42b8f`
+- 上游最新提交日期：`2026-08-09T08:26:22Z`
+- 上游提交数量：`115`（其中非合并提交 `105`）
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`156163d5efc7bb6586f90a7136a3a7d9bbf1363d`
+- 关联上游 PR、Issue 或 Release：上游版本 `0.1.173`
+- 主要变更：
+  - 新增 Channel Monitor v2：被动聚合表、分层保留、只读 API、v1/v2 模式门控、静默历史回填、聚合进度、隐私默认值，以及管理端和用户端 Ops 风格监控界面。
+  - 大幅扩展 Grok：模型目录和可配置跨客户端映射、SSO/刷新凭证生命周期、free/P2 配额软门禁、stream idle 换号、team+model 冷却、账号测试和媒体预览。
+  - Grok 网关新增 Voice TTS/STT/Realtime、自定义声音 CRUD/下载、`/v1/web_search`、搜索计费、按模型视频价格和分组音频/Voice 定价，并加固媒体完成状态与计费门控。
+  - 新增邮箱域名注册额度策略及默认关闭的总开关；修复邮箱别名、配额统计和注册策略边界。
+  - 修复 Gemini 池模式账号 429 误标账号级限流，原生生图改为按上游实际返回图片数计费；OpenAI 非流式生图在上游已接收后不再随客户端断开取消计费链路。
+  - 优化上游响应模型观测性能，并修复前端回滚 timeout 断言和 `GroupsView` capability mock，清除了上一版本遗留的全量前端测试失败。
+- 定制代码影响：
+  - `site_favicon` 设置链路完整保留；上游对公开设置契约大幅重排后，重新核对了设置存储、管理端上传、公开 API、SSR 注入和运行时更新。
+  - ACR Compose 镜像地址、OpenResty 脚本、安装手册和 `BUILD.md` 未被上游覆盖。
+  - 部署时需执行上游新增的 Channel Monitor v2 迁移 `194_channel_monitor_v2.sql` 至 `206_channel_monitor_v2_privacy_defaults.sql`，以及 Grok 分组计价迁移 `217` 至 `220`；相同数字前缀的迁移按完整文件名/checksum 独立管理。
+- 冲突处理：
+  - `backend/internal/handler/dto/settings.go`
+  - `backend/internal/handler/setting_handler.go`
+  - `backend/internal/service/setting_public.go`
+  - `backend/internal/service/settings_view.go`
+  - 以上 4 个文件均采用上游 `0.1.173` 的完整字段结构，再恢复共 9 处 `SiteFavicon` 字段或映射；相对 `upstream/main` 的冲突文件差异仅剩预期的 favicon 接线。
+- 验证结果：
+  - `git diff --check upstream/main..156163d5e`：通过；合入完整范围中的 `docs/channel-monitor-v2-safe-defaults.md` 有 3 处上游 Markdown 强制换行双空格，按上游原文保留。
+  - `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `pnpm typecheck`：通过。
+  - `pnpm test:run`：`220` 个测试文件、`1529` 个测试全部通过，无失败和未处理错误。
+  - `pnpm build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+- 镜像或部署验证：未执行。本次只完成本地代码合入和验证，ACR `latest` 仍为已发布的 `0.1.172`，需要单独构建并推送后才包含 `0.1.173`。
+- 合入总结：
+  - 本次同步的主体是 Channel Monitor v2 和 Grok 完整能力整合，同时修复邮件注册配额、Gemini 图片计费及 OpenAI 生图断连计费问题。
+  - `xingliux` 的独立 favicon 和生产部署配置已保留；发布前应构建新镜像，并在生产环境重点确认新增迁移、监控模式/隐私默认值、Grok 音视频与搜索计费配置。
+
 ### 2026-08-08：同步 upstream/main 至 0.1.172
 
 - 合入前定制分支提交：`217a3747e93d62d8b01f96d21c38dfd0cb317572`
