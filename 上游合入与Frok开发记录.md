@@ -66,6 +66,43 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-12：同步 upstream/main 至 0.1.175
+
+- 合入前定制分支提交：`b67f838563672bda7eaf35e1767e9d53af0215bd`
+- 上游共同基线提交：`48eb3766d2da817b171b45bb3036d42575e42b8f`
+- 本次合入的上游目标提交：`5935e674a84341c3536e27e6a968384f67d9062b`
+- 上游提交范围：`48eb3766d2da817b171b45bb3036d42575e42b8f..5935e674a84341c3536e27e6a968384f67d9062b`
+- 上游最新提交日期：`2026-08-12T19:17:04+08:00`
+- 上游提交数量：`85`（其中非合并提交 `48`）
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`94582c4963beca03ea73841fb542e89d438f0fdc`
+- 关联上游 PR、Issue 或 Release：上游版本 `0.1.175`
+- 主要变更：
+  - 新增 Codex OAuth 设备指纹收敛，统一账号身份、请求头和设备会话信号，减少上游可见的重复设备与会话；同时加强 User-Agent 入库校验。
+  - 加固 OpenAI Responses、Chat Completions 和 WebSocket v2 的流式恢复与 TTFT 统计：空 `response.completed`、图片流错误、无 delta 终止事件、keepalive 已提交但无 SSE、确定性 400 和 HTML 403 均按更准确的语义处理。
+  - 增强 OpenAI 调度与账号健康判断：保留 Codex 容量指数退避和用量百分比，忽略过期快照，补充旧调度器排除诊断，并在透传池认证失败时先重试再 failover。
+  - 新增安全的上游响应模型计费和计费完整性检查，账号成本支持 `service_tier` 定价；修复 Grok 缺少 usage 时的计费绕过，以及 API Key 配额和过期时间输入校验。
+  - 完善大文件备份的分卷上传、恢复和 S3 存储测试；管理端 Usage 恢复 request ID 列，运营监控改善内存容量显示，简易模式下显示安全审计入口。
+  - 修复 WebSocket 审计日志和同一 turn 去重、Cyber 风控审计范围、Gemini exclusive minimum 工具 Schema、Chat reasoning 别名、Composite 分组图片权限及个人订阅到期时间覆盖问题。
+- 定制代码影响：
+  - 本次上游未修改 `site_favicon` 的定制接线文件；已复核设置存储、管理端上传、公开 API、SSR 注入和运行时更新均完整保留。
+  - ACR Compose 镜像地址、OpenResty 脚本、初次安装手册和 `BUILD.md` 均未被上游覆盖。
+  - 合入前存在未提交的 `deploy/docker-compose.yml` 容器名修改（`sub2api` 改为 `xingliux`）；同步前已暂存，合入后原样恢复，未混入合并提交或本条记录提交。
+  - 本次上游范围没有新增数据库迁移文件。
+- 冲突处理：无。`ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check b67f83856..94582c496`：通过。
+  - `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `make build`（backend）：通过，构建版本为 `0.1.175`。
+  - `pnpm typecheck`：通过。
+  - `pnpm test:run`：`222` 个测试文件、`1538` 个测试全部通过。
+  - `pnpm build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+- 镜像或部署验证：未执行。本次只完成本地上游合入和代码验证；ACR `latest` 仍是此前发布的 `0.1.173`，需要单独构建并推送后才包含 `0.1.175`。
+- 合入总结：
+  - 本次同步主要提升 Codex 身份一致性、OpenAI 流式容错、调度诊断和响应模型计费完整性，并完善大文件备份、安全审计及管理端可观测性。
+  - `xingliux` 的独立 favicon 与生产部署定制均已保留；发布前应构建 `0.1.175` 镜像，部署后重点验证 OpenAI/Codex 流式请求、账号容量调度、响应模型计费及大文件备份恢复。
+
 ### 2026-08-09：同步 upstream/main 至 0.1.173
 
 - 合入前定制分支提交：`858d9b55623840325e1d733a52419f1d7e08a4d8`
