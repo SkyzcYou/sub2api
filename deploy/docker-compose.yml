@@ -17,7 +17,7 @@ services:
   # ===========================================================================
   sub2api:
     image: crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest
-    container_name: sub2api
+    container_name: xingliux
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
