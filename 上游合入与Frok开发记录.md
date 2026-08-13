@@ -66,6 +66,44 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-13：同步 upstream/main 至 0.1.176
+
+- 合入前定制分支提交：`d8721a858ff2a9578c3d90371dfc688c943d0a4d`
+- 上游共同基线提交：`5935e674a84341c3536e27e6a968384f67d9062b`
+- 本次合入的上游目标提交：`fbfdcef8184ae4b2e224d5cfc47cf1d0e3742710`
+- 上游提交范围：`5935e674a84341c3536e27e6a968384f67d9062b..fbfdcef8184ae4b2e224d5cfc47cf1d0e3742710`
+- 上游最新提交日期：`2026-08-13T10:32:07+08:00`
+- 上游提交数量：`26`（其中非合并提交 `20`）
+- 变更范围：`98` 个文件，新增 `3746` 行，删除 `299` 行
+- 合入方式：`git merge --no-ff --no-edit upstream/main`
+- 合入后提交：`84226fc1b166dc323b73e83ac75ded2e8b7ad2cd`
+- 关联上游 PR、Issue 或 Release：上游版本 `0.1.176`，包含 PR `#5573` 等上游合并请求
+- 主要变更：
+  - Grok 新增 `grok-4.6` 模型目录、官方定价和请求路径支持，并从 JWT tier 识别订阅档位；刷新凭证后可覆盖失效的订阅信息。
+  - Grok 长上下文策略改为由分组开关控制，支持逐模型定价和关闭长上下文阶梯；未知文本模型安全回退到文本价卡，媒体族不会误套用文本模型。
+  - 新增独立 `/x_search` 原生搜索接口；Chat 与 Responses 往返保留 `x_search` 并抽取 sources，搜索计费继续沿用现有计费链路。
+  - 修复 Grok Realtime 仅在观察到音频后计费、SuperGrokPro Heavy 窗口识别和容量抖动隔离；账号徽章与用量格改按实时档位展示。
+  - 新增分组逐模型定价配置及管理端编辑能力，并增加 `221_group_model_pricing.sql` 迁移；迁移为 groups 增加长上下文定价开关和模型定价 JSONB 字段。
+  - 定时备份新增 leader 锁，避免多实例重复执行；分组平台变化时主动失效频道缓存；Responses 探测未完成时保留未知状态，不再误判为上游不支持。
+  - 账号页自动刷新偏好改为模块初始化时恢复，账号用量刷新、Grok 订阅档位和模型白名单相关前端展示与测试同步更新。
+- 定制代码影响：
+  - `site_favicon` 的设置存储、管理端上传、公开 API、SSR 注入和运行时更新链路均保留；favicon 专项测试全部通过。
+  - 生产 `deploy/docker-compose.yml` 继续使用阿里云 ACR 镜像 `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，容器名保持为 `xingliux`；OpenResty 脚本、安装手册和 `BUILD.md` 定制未被覆盖。
+  - 生产部署需执行上游迁移 `backend/migrations/221_group_model_pricing.sql`，并在迁移后核对分组长上下文定价开关和逐模型定价配置。
+- 冲突处理：无。Git `ort` 自动合并成功，仅自动合并 `frontend/src/types/index.ts`，未产生冲突文件。
+- 验证结果：
+  - `git diff --check d8721a858..84226fc1b`：通过。
+  - `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `make build`（backend）：通过，构建版本为 `0.1.176`。
+  - `pnpm typecheck`：通过。
+  - `pnpm test:run`：`222` 个测试文件、`1547` 个测试全部通过。
+  - `pnpm build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+- 镜像或部署验证：未执行。本次只完成本地上游合入和代码验证；ACR `latest` 当前仍为已发布的 `0.1.175`，需要单独构建并推送后才包含 `0.1.176`。
+- 合入总结：
+  - 本次同步重点是 Grok 4.6/JWT 订阅和长上下文计费、原生 x_search、分组逐模型定价，以及备份和频道缓存可靠性改进。
+  - `xingliux` 的 favicon、ACR 镜像地址和生产容器命名定制均已保留；发布前应先执行迁移 `221`，再构建并推送 `0.1.176` 镜像，重点验证 Grok 模型定价、x_search 计费和多实例备份行为。
+
 ### 2026-08-12：同步 upstream/main 至 0.1.175
 
 - 合入前定制分支提交：`b67f838563672bda7eaf35e1767e9d53af0215bd`
