@@ -98,10 +98,10 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
   - `pnpm test:run`：`223` 个测试文件、`1549` 个测试全部通过。
   - `pnpm build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
   - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
-- 镜像或部署验证：未执行。本次只完成本地上游合入和代码验证；尚未执行 Docker build/push，ACR `latest` 需要单独构建并推送后才包含 `0.1.177`。
+- 镜像或部署验证：已完成 Docker build/push，使用 `GOLANG_IMAGE=golang:1.26.6-alpine`（因 `backend/go.mod` 要求 Go `>=1.26.6`）和 `NPM_CONFIG_REGISTRY=https://registry.npmmirror.com` 构建 `0.1.177`；ACR `latest` 推送成功，远端 digest 为 `sha256:ce309557f55538654a76708efa283d0efd9f1812e1965a50131e6724b37414c`。尚未在生产服务器执行 `docker compose pull/up`，也未执行迁移。
 - 合入总结：
   - 本次同步重点是 OpenAI/Codex turn-state 与 fingerprint opt-in、原生 compaction v2、分组用量日报汇总及其时区支持。
-  - `xingliux` 的 favicon、ACR 镜像地址和生产容器命名定制均已保留；发布前应先执行迁移 `222`、`223`，再按需构建并推送 `0.1.177` 镜像，重点验证 OpenAI/Codex 长请求透传和分组用量日报。
+  - `xingliux` 的 favicon、ACR 镜像地址和生产容器命名定制均已保留；`0.1.177` 镜像已推送到 ACR，生产发布前仍应先执行迁移 `222`、`223`，再在服务器拉取并重启服务，重点验证 OpenAI/Codex 长请求透传和分组用量日报。
 
 ### 2026-08-13：同步 upstream/main 至 0.1.176
 
