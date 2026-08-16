@@ -112,7 +112,7 @@
           <template v-for="item in personalNavItems" :key="item.path">
             <div
               v-if="item.visualGroup === 'recharge'"
-              class="sidebar-recharge-group"
+              class="sidebar-recharge-group bg-gray-100/80 dark:bg-dark-800/70"
               :class="{ 'sidebar-recharge-group-collapsed': sidebarCollapsed }"
             >
               <router-link
@@ -159,7 +159,7 @@
           <template v-for="item in userNavItems" :key="item.path">
             <div
               v-if="item.visualGroup === 'recharge'"
-              class="sidebar-recharge-group"
+              class="sidebar-recharge-group bg-gray-100/80 dark:bg-dark-800/70"
               :class="{ 'sidebar-recharge-group-collapsed': sidebarCollapsed }"
             >
               <router-link
@@ -1194,7 +1194,6 @@ onBeforeUnmount(() => {
   margin-bottom: 0.25rem;
   padding: 0.25rem;
   border-radius: 0.875rem;
-  background-color: rgb(243 244 246 / 0.8);
 }
 
 .sidebar-recharge-group-collapsed {
@@ -1207,10 +1206,6 @@ onBeforeUnmount(() => {
 
 .sidebar-recharge-link + .sidebar-recharge-link {
   margin-top: 0.125rem;
-}
-
-:global(.dark) .sidebar-recharge-group {
-  background-color: rgb(30 41 59 / 0.65);
 }
 
 /* Custom SVG icon in sidebar: constrain size without overriding uploaded SVG colors */

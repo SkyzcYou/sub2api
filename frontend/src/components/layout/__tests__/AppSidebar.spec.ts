@@ -198,6 +198,8 @@ describe('AppSidebar regular user navigation', () => {
     const rechargeGroup = wrapper.get('nav .sidebar-recharge-group')
     expect(rechargeGroup.findAll('a.sidebar-recharge-link')).toHaveLength(3)
     expect(rechargeGroup.classes()).not.toContain('sidebar-link-active')
+    expect(rechargeGroup.classes()).toContain('bg-gray-100/80')
+    expect(rechargeGroup.classes()).toContain('dark:bg-dark-800/70')
     expect(links.at(profileIndex + 4)?.classes()).not.toContain('sidebar-recharge-link')
     expect(paths.filter((path) => path === '/custom/youziai-code-store')).toHaveLength(1)
 
