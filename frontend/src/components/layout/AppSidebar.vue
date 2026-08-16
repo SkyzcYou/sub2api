@@ -109,40 +109,94 @@
             </span>
           </div>
 
-          <router-link
-            v-for="item in personalNavItems"
-            :key="item.path"
-            :to="item.path"
-            class="sidebar-link mb-1"
-            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
-            :title="sidebarCollapsed ? item.label : undefined"
-            :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
-            @click="handleMenuItemClick(item.path)"
-          >
-            <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
-            <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
-            <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
-          </router-link>
+          <template v-for="item in personalNavItems" :key="item.path">
+            <div
+              v-if="item.visualGroup === 'recharge'"
+              class="sidebar-recharge-group"
+              :class="{ 'sidebar-recharge-group-collapsed': sidebarCollapsed }"
+            >
+              <router-link
+                v-for="child in item.children"
+                :key="child.path"
+                :to="child.path"
+                class="sidebar-link sidebar-recharge-link"
+                :class="{
+                  'sidebar-link-active': isActive(child.path),
+                  'sidebar-link-collapsed': sidebarCollapsed,
+                }"
+                :title="sidebarCollapsed ? child.label : undefined"
+                @click="handleMenuItemClick(child.path)"
+              >
+                <span v-if="child.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(child.iconSvg)"></span>
+                <component v-else :is="child.icon" class="h-5 w-5 flex-shrink-0" />
+                <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ child.label }}</span>
+              </router-link>
+            </div>
+
+            <router-link
+              v-else
+              :to="item.path"
+              class="sidebar-link mb-1"
+              :class="{
+                'sidebar-link-active': isActive(item.path),
+                'sidebar-link-collapsed': sidebarCollapsed,
+              }"
+              :title="sidebarCollapsed ? item.label : undefined"
+              :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
+              @click="handleMenuItemClick(item.path)"
+            >
+              <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
+              <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
+              <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
+            </router-link>
+          </template>
         </div>
       </template>
 
       <!-- Regular User View -->
       <template v-else-if="!appStore.backendModeEnabled">
         <div class="sidebar-section">
-          <router-link
-            v-for="item in userNavItems"
-            :key="item.path"
-            :to="item.path"
-            class="sidebar-link mb-1"
-            :class="{ 'sidebar-link-active': isActive(item.path), 'sidebar-link-collapsed': sidebarCollapsed }"
-            :title="sidebarCollapsed ? item.label : undefined"
-            :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
-            @click="handleMenuItemClick(item.path)"
-          >
-            <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
-            <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
-            <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
-          </router-link>
+          <template v-for="item in userNavItems" :key="item.path">
+            <div
+              v-if="item.visualGroup === 'recharge'"
+              class="sidebar-recharge-group"
+              :class="{ 'sidebar-recharge-group-collapsed': sidebarCollapsed }"
+            >
+              <router-link
+                v-for="child in item.children"
+                :key="child.path"
+                :to="child.path"
+                class="sidebar-link sidebar-recharge-link"
+                :class="{
+                  'sidebar-link-active': isActive(child.path),
+                  'sidebar-link-collapsed': sidebarCollapsed,
+                }"
+                :title="sidebarCollapsed ? child.label : undefined"
+                @click="handleMenuItemClick(child.path)"
+              >
+                <span v-if="child.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(child.iconSvg)"></span>
+                <component v-else :is="child.icon" class="h-5 w-5 flex-shrink-0" />
+                <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ child.label }}</span>
+              </router-link>
+            </div>
+
+            <router-link
+              v-else
+              :to="item.path"
+              class="sidebar-link mb-1"
+              :class="{
+                'sidebar-link-active': isActive(item.path),
+                'sidebar-link-collapsed': sidebarCollapsed,
+              }"
+              :title="sidebarCollapsed ? item.label : undefined"
+              :data-tour="item.path === '/keys' ? 'sidebar-my-keys' : undefined"
+              @click="handleMenuItemClick(item.path)"
+            >
+              <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
+              <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
+              <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
+            </router-link>
+          </template>
         </div>
       </template>
     </nav>
@@ -204,6 +258,7 @@ interface NavItem {
   icon: unknown
   iconSvg?: string
   hideInSimpleMode?: boolean
+  visualGroup?: 'recharge'
   children?: NavItem[]
   /**
    * When true, the parent item only toggles the expand/collapse state and
@@ -218,6 +273,8 @@ interface NavItem {
    */
   featureFlag?: () => boolean | undefined
 }
+
+const YOUZIAI_CODE_STORE_ID = 'youziai-code-store'
 
 // applyFeatureFlags 递归过滤掉 featureFlag() === false 的节点（含子节点）。
 // 使用 `!== false` 宽容语义：undefined（设置未加载）或 true 都视为显示。
@@ -412,6 +469,21 @@ const CreditCardIcon = {
           'stroke-linecap': 'round',
           'stroke-linejoin': 'round',
           d: 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z'
+        })
+      ]
+    )
+}
+
+const CurrencyDollarIcon = {
+  render: () =>
+    h(
+      'svg',
+      { fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', 'stroke-width': '1.5' },
+      [
+        h('path', {
+          'stroke-linecap': 'round',
+          'stroke-linejoin': 'round',
+          d: 'M12 6v12m3-9.75H10.5a2.25 2.25 0 000 4.5h3a2.25 2.25 0 010 4.5H9m12-3.25a9 9 0 11-18 0 9 9 0 0118 0z'
         })
       ]
     )
@@ -692,10 +764,31 @@ const flagBatchImageAccess = () => canUseBatchImage.value
 // buildSelfNavItems 构造用户自己的导航项（用户端主菜单和管理员的"我的账户"子菜单共享这组声明）。
 // withDashboard=true 时包含仪表盘（用户端），false 时不含（管理员的个人区已经有独立仪表盘入口）。
 //
-// 条目顺序：密钥 → 用量 → 可用渠道 → 渠道状态 → 订阅/支付 → 兑换/资料。
+// 条目顺序：密钥 → 用量 → 可用渠道 → 渠道状态 → 订阅/支付 → 兑换/资料 → 充值入口 → 自定义页面。
 // 可用渠道紧挨渠道状态之上，让用户"先看自己能用什么、再看对应状态"。
 function buildSelfNavItems(withDashboard: boolean): NavItem[] {
   const items: NavItem[] = []
+  const rechargeItems: NavItem[] = [
+    {
+      path: '/purchase',
+      label: t('nav.buySubscription'),
+      icon: RechargeSubscriptionIcon,
+      hideInSimpleMode: true,
+      featureFlag: flagPayment,
+    },
+    {
+      path: '/recharge/usdt',
+      label: t('nav.usdtRecharge'),
+      icon: CurrencyDollarIcon,
+    },
+  ]
+  const cardStoreItem = customMenuItemsForUser.value.find(
+    (item) => item.id === YOUZIAI_CODE_STORE_ID,
+  )
+  const otherCustomItems = customMenuItemsForUser.value.filter(
+    (item) => item.id !== YOUZIAI_CODE_STORE_ID,
+  )
+
   if (withDashboard) {
     items.push({ path: '/dashboard', label: t('nav.dashboard'), icon: DashboardIcon })
   }
@@ -706,25 +799,51 @@ function buildSelfNavItems(withDashboard: boolean): NavItem[] {
     { path: '/available-channels', label: t('nav.availableChannels'), icon: ChannelIcon, hideInSimpleMode: true, featureFlag: flagAvailableChannels },
     { path: '/monitor', label: t('nav.channelStatus'), icon: SignalIcon, featureFlag: flagChannelMonitor },
     { path: '/subscriptions', label: t('nav.mySubscriptions'), icon: CreditCardIcon, hideInSimpleMode: true },
-    { path: '/purchase', label: t('nav.buySubscription'), icon: RechargeSubscriptionIcon, hideInSimpleMode: true, featureFlag: flagPayment },
     { path: '/orders', label: t('nav.myOrders'), icon: OrderListIcon, hideInSimpleMode: true, featureFlag: flagPayment },
     { path: '/redeem', label: t('nav.redeem'), icon: GiftIcon, hideInSimpleMode: true },
     { path: '/affiliate', label: t('nav.affiliate'), icon: UsersIcon, hideInSimpleMode: true, featureFlag: flagAffiliate },
     { path: '/profile', label: t('nav.profile'), icon: UserIcon },
-    ...customMenuItemsForUser.value.map((item): NavItem => ({
+  )
+
+  if (cardStoreItem) {
+    rechargeItems.push({
+      path: `/custom/${cardStoreItem.id}`,
+      label: cardStoreItem.label,
+      icon: CreditCardIcon,
+    })
+  }
+
+  items.push({
+    path: '/__recharge-entry-group',
+    label: '',
+    icon: null,
+    visualGroup: 'recharge',
+    children: rechargeItems,
+  })
+
+  items.push(
+    ...otherCustomItems.map((item): NavItem => ({
       path: `/custom/${item.id}`,
       label: item.label,
       icon: null,
       iconSvg: item.icon_svg,
     })),
   )
+
   return items
 }
 
 // finalizeNav 合并三重过滤：featureFlag 过滤 + simple 模式过滤。
 function finalizeNav(items: NavItem[]): NavItem[] {
   const visible = applyFeatureFlags(items)
-  return authStore.isSimpleMode ? visible.filter(item => !item.hideInSimpleMode) : visible
+  if (!authStore.isSimpleMode) return visible
+
+  return visible
+    .filter((item) => !item.hideInSimpleMode)
+    .map((item) => item.children
+      ? { ...item, children: item.children.filter((child) => !child.hideInSimpleMode) }
+      : item)
+    .filter((item) => !item.visualGroup || Boolean(item.children?.length))
 }
 
 // User navigation items (for regular users)
@@ -1069,6 +1188,29 @@ onBeforeUnmount(() => {
   opacity: 0;
   transform: translateX(-4px);
   pointer-events: none;
+}
+
+.sidebar-recharge-group {
+  margin-bottom: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 0.875rem;
+  background-color: rgb(243 244 246 / 0.8);
+}
+
+.sidebar-recharge-group-collapsed {
+  padding: 0;
+}
+
+.sidebar-recharge-link {
+  margin-bottom: 0;
+}
+
+.sidebar-recharge-link + .sidebar-recharge-link {
+  margin-top: 0.125rem;
+}
+
+:global(.dark) .sidebar-recharge-group {
+  background-color: rgb(30 41 59 / 0.65);
 }
 
 /* Custom SVG icon in sidebar: constrain size without overriding uploaded SVG colors */

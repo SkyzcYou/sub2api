@@ -175,10 +175,11 @@ const isMarkdownMode = computed(() => !!markdownSlug.value)
 
 const embeddedUrl = computed(() => {
   if (!menuItem.value || isMarkdownMode.value) return ''
+  const forwardUserContext = menuItem.value.auth_mode !== 'none'
   return buildEmbeddedUrl(
     menuItem.value.url,
-    authStore.user?.id,
-    authStore.token,
+    forwardUserContext ? authStore.user?.id : undefined,
+    forwardUserContext ? authStore.token : null,
     pageTheme.value,
     locale.value,
   )

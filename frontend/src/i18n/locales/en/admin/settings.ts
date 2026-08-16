@@ -677,6 +677,11 @@ export default {
         visibility: 'Visible To',
         visibilityUser: 'Regular Users',
         visibilityAdmin: 'Administrators',
+        authMode: 'Identity Forwarding',
+        authModeNone: 'Do not forward identity (recommended)',
+        authModeQuery: 'Forward user ID and login token in URL',
+        authModeHint:
+          'Only forward identity to a service you fully control. Third-party pages should use the recommended no-forwarding mode.',
         add: 'Add Menu Item',
         remove: 'Remove',
         moveUp: 'Move Up',

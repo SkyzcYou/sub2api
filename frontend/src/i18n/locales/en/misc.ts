@@ -71,6 +71,12 @@ export default {
       'The administrator enabled the entry but has not configured a recharge/subscription URL. Please contact admin.'
   },
 
+  // USDT Recharge Page
+  usdtRecharge: {
+    title: 'USDT Recharge',
+    maintenance: 'Under maintenance...'
+  },
+
   // Custom Page (iframe embed)
   customPage: {
     title: 'Custom Page',

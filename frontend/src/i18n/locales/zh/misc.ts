@@ -69,6 +69,12 @@ export default {
     notConfiguredDesc: '管理员已开启入口，但尚未配置充值/订阅链接，请联系管理员。'
   },
 
+  // USDT Recharge Page
+  usdtRecharge: {
+    title: 'USDT 充值',
+    maintenance: '维护中...'
+  },
+
   // Custom Page (iframe embed)
   customPage: {
     title: '自定义页面',

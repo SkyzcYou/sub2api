@@ -188,6 +188,7 @@ export interface CustomMenuItem {
   icon_svg: string
   url: string
   page_slug?: string
+  auth_mode?: 'none' | 'query'
   visibility: 'user' | 'admin'
   sort_order: number
 }

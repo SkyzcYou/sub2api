@@ -6706,6 +6706,26 @@
                     />
                   </div>
 
+                  <!-- Embedded page identity forwarding -->
+                  <div class="sm:col-span-2">
+                    <label
+                      class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400"
+                    >
+                      {{ t("admin.settings.customMenu.authMode") }}
+                    </label>
+                    <select v-model="item.auth_mode" class="input text-sm">
+                      <option value="none">
+                        {{ t("admin.settings.customMenu.authModeNone") }}
+                      </option>
+                      <option value="query">
+                        {{ t("admin.settings.customMenu.authModeQuery") }}
+                      </option>
+                    </select>
+                    <p class="mt-1.5 text-xs text-amber-600 dark:text-amber-400">
+                      {{ t("admin.settings.customMenu.authModeHint") }}
+                    </p>
+                  </div>
+
                   <!-- SVG Icon (full width) -->
                   <div class="sm:col-span-2">
                     <label
@@ -9508,6 +9528,7 @@ const form = reactive<SettingsForm>({
     label: string;
     icon_svg: string;
     url: string;
+    auth_mode?: "none" | "query";
     visibility: "user" | "admin";
     sort_order: number;
   }>,
@@ -10477,6 +10498,7 @@ function addMenuItem() {
     label: "",
     icon_svg: "",
     url: "",
+    auth_mode: "none",
     visibility: "user",
     sort_order: form.custom_menu_items.length,
   });
@@ -10677,6 +10699,12 @@ async function loadSettings() {
         (form as Record<string, unknown>)[key] = value;
       }
     }
+    form.custom_menu_items = Array.isArray(settings.custom_menu_items)
+      ? settings.custom_menu_items.map((item) => ({
+          ...item,
+          auth_mode: item.auth_mode === "none" ? "none" : "query",
+        }))
+      : [];
     syncCaptchaProviderSelection();
     if (!form.claude_oauth_system_prompt_blocks?.trim()) {
       form.claude_oauth_system_prompt_blocks =

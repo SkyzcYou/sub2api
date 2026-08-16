@@ -1301,6 +1301,17 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 				response.BadRequest(c, "Custom menu item visibility must be 'user' or 'admin'")
 				return
 			}
+			authMode := strings.TrimSpace(item.AuthMode)
+			if authMode == "" {
+				// Keep existing integrations compatible: historical custom pages always
+				// forwarded user_id and token in the query string.
+				authMode = "query"
+			}
+			if authMode != "none" && authMode != "query" {
+				response.BadRequest(c, "Custom menu item auth mode must be 'none' or 'query'")
+				return
+			}
+			items[i].AuthMode = authMode
 			if len(item.IconSVG) > maxMenuItemIconSVGLen {
 				response.BadRequest(c, "Custom menu item icon SVG is too large (max 10KB)")
 				return
