@@ -66,6 +66,43 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-16：同步 upstream/main 至 0.1.177
+
+- 合入前定制分支提交：`6a5e67cb5d0c534a2ce7c31ba2b68e0ffe2d3e80`
+- 上游共同基线提交：`fbfdcef8184ae4b2e224d5cfc47cf1d0e3742710`
+- 本次合入的上游目标提交：`baeac1f3de21d37b129405f092ef86c24b3f203d`
+- 上游提交范围：`fbfdcef8184ae4b2e224d5cfc47cf1d0e3742710..baeac1f3de21d37b129405f092ef86c24b3f203d`
+- 上游最新提交日期：`2026-08-15T13:40:21Z`
+- 上游提交数量：`13`（其中非合并提交 `10`）
+- 变更范围：`68` 个文件，新增 `4413` 行，删除 `311` 行
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`07eef8e66f1636da31f4ed7e9949d723951258dd`
+- 关联上游 PR、Issue 或 Release：上游版本 `0.1.177`，包含 Codex turn-state/fingerprint、远程 compaction v2 和分组用量日报汇总相关合并请求
+- 主要变更：
+  - OpenAI/Codex 请求新增 turn-state 透传、跨账号回显隔离和相关响应处理，避免上游状态在不同账号之间串用。
+  - Codex fingerprint 收敛改为 opt-in，并补充自动透传场景的兼容处理和管理端配置。
+  - 增加原生 compaction v2 探测、路由与 Responses compact 处理，区分原生和 legacy compaction 路径。
+  - 新增分组用量日报汇总、后台持久水位和失效触发器，补充分组用量管理端摘要、趋势统计及清理逻辑。
+  - 新增数据库迁移 `222_group_usage_daily_rollups.sql` 和 `223_group_usage_rollup_timezone.sql`：创建分组用量日桶及发布状态，并让日桶跟随服务端配置时区重建。
+  - 修复分组用量仓储测试时区、CI 失败、账号调度和 compact 相关边界问题；版本更新至 `0.1.177`。
+- 定制代码影响：
+  - `site_favicon` 的设置存储、管理端上传、公开 API、SSR 注入和运行时更新链路均保留；独立 favicon 回归测试通过。
+  - 生产 `deploy/docker-compose.yml` 继续使用阿里云 ACR 镜像 `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名保持为 `xingliux`；OpenResty 脚本、安装手册和 `BUILD.md` 定制未被覆盖。
+  - 本次新增迁移需在发布 `0.1.177` 前执行 `222`、`223`，并核对分组用量日报的配置时区和历史回填状态。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check 6a5e67cb5..07eef8e66`：通过。
+  - `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `make build`（backend）：通过，构建版本为 `0.1.177`。
+  - `pnpm typecheck`：通过。
+  - `pnpm test:run`：`223` 个测试文件、`1549` 个测试全部通过。
+  - `pnpm build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+- 镜像或部署验证：未执行。本次只完成本地上游合入和代码验证；尚未执行 Docker build/push，ACR `latest` 需要单独构建并推送后才包含 `0.1.177`。
+- 合入总结：
+  - 本次同步重点是 OpenAI/Codex turn-state 与 fingerprint opt-in、原生 compaction v2、分组用量日报汇总及其时区支持。
+  - `xingliux` 的 favicon、ACR 镜像地址和生产容器命名定制均已保留；发布前应先执行迁移 `222`、`223`，再按需构建并推送 `0.1.177` 镜像，重点验证 OpenAI/Codex 长请求透传和分组用量日报。
+
 ### 2026-08-13：同步 upstream/main 至 0.1.176
 
 - 合入前定制分支提交：`d8721a858ff2a9578c3d90371dfc688c943d0a4d`
