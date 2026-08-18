@@ -66,6 +66,45 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-19：同步 upstream/main 至 0.1.178
+
+- 合入前定制分支提交：`60d91ca828db3a42f0f4fded6ba5a230ad7904c9`
+- 上游共同基线提交：`baeac1f3de21d37b129405f092ef86c24b3f203d`
+- 本次合入的上游目标提交：`49504adc98d2b6d539491e865a340e644548979e`
+- 上游提交范围：`baeac1f3de21d37b129405f092ef86c24b3f203d..49504adc98d2b6d539491e865a340e644548979e`
+- 上游最新提交日期：`2026-08-18T10:03:19Z`
+- 上游提交数量：`107`（其中非合并提交 `68`）
+- 变更范围：`301` 个文件，新增 `19904` 行，删除 `1017` 行
+- 合入方式：`git merge --no-ff --no-edit upstream/main`
+- 合入后提交：`9728f6e7413819f2975a04d4ce48b96893fbeab8`
+- 关联上游 PR、Issue 或 Release：上游版本 `0.1.178`
+- 主要变更：
+  - 新增 Kimi、智谱、DeepSeek 等国产模型平台支持，补充平台分组、余额、配额、渠道能力和管理端账号配置。
+  - 新增 Channel Monitor 配额模式、配额抓取服务及管理端/用户端配额展示，支持按渠道模型配置分时倍率定价。
+  - 增强 OpenAI/Codex fingerprint、Team 联动熔断、自定义 tools、Anthropic 原生兼容和 SSE 流处理；修复 Gemini 工具调用兼容性与错误策略边界。
+  - 修复邀请码注册竞态、计费完整性、Grok 用量和多项管理端/用户端交互问题；后端默认 Go builder 升级为 `golang:1.26.6-alpine`。
+- 新增数据库迁移：
+  - `backend/migrations/224_user_platform_quotas_add_cn_providers.sql`
+  - `backend/migrations/225_backfill_codex_fingerprint_seed.sql`
+  - `backend/migrations/225_channel_model_time_pricing.sql`
+  - `backend/migrations/226_channel_monitor_quota_mode.sql`
+  - 两个 `225` 前缀迁移按完整文件名和 checksum 独立管理，生产发布时需按项目迁移机制执行全部 4 个文件。
+- 定制代码影响：
+  - `site_favicon` 独立设置的存储、管理端上传、公开 API、SSR 注入和运行时更新链路均保留。
+  - 生产 `deploy/docker-compose.yml` 继续使用阿里云 ACR 镜像 `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名保持为 `xingliux`；OpenResty 脚本、安装手册和 `BUILD.md` 定制未被覆盖。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check 60d91ca828db3a42f0f4fded6ba5a230ad7904c9 9728f6e7413819f2975a04d4ce48b96893fbeab8`：通过。
+  - `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `pnpm typecheck`：通过。
+  - `pnpm run test:run`：`230` 个测试文件中 `229` 个通过、`1` 个失败；`1625/1626` 个测试通过。失败为上游 `CreateAccountModal.grok.spec.ts` 对 `? 'xai-...'` 旧三元表达式文本的断言，当前上游源码已重构为 `apiKeyValuePlaceholder` computed，属于上游测试与源码不同步，非本次定制改动引入。
+  - `pnpm run build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+- 镜像或部署验证：本次仅完成本地上游合入，未执行 Docker build/push，也未在生产服务器执行迁移或重启；发布前应先执行上述 `224`、`225`、`226` 迁移，再构建并推送 ACR `latest` 镜像。
+- 合入总结：
+  - 本次同步重点是国产模型平台与配额能力、Channel Monitor 配额模式、分时倍率定价，以及 OpenAI/Codex、Anthropic、Gemini 兼容性增强。
+  - `xingliux` 的 favicon、ACR 镜像地址和生产容器命名定制均已保留；生产升级必须把数据库迁移与镜像升级作为同一发布步骤核对。
+
 ### 2026-08-16：同步 upstream/main 至 0.1.177
 
 - 合入前定制分支提交：`6a5e67cb5d0c534a2ce7c31ba2b68e0ffe2d3e80`
