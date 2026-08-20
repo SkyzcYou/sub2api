@@ -29,7 +29,7 @@ export ACR_REGISTRY=crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com
 export IMAGE="$ACR_REGISTRY/skyzcstack/xingliux"
 
 docker build \
-  --build-arg VERSION=0.1.177 \
+  --build-arg VERSION=0.1.178 \
   --build-arg GOLANG_IMAGE=golang:1.26.6-alpine \
   --build-arg NPM_CONFIG_REGISTRY=https://registry.npmmirror.com \
   -t "$IMAGE:latest" \
@@ -51,9 +51,9 @@ docker pull "$IMAGE:latest"
 ## Published Build
 
 - Source branch: `xingliux`
-- Version: `0.1.177`
-- Source revision: `07eef8e66f1636da31f4ed7e9949d723951258dd`
+- Version: `0.1.178`
+- Source revision: `549983fae7677ab6bfc06e0ffc5933ec1732e736`
 - Platform: `linux/amd64`
-- Local image ID: `sha256:0c6671dbf7d944b3a83d16b5cf9a804a8424e1c93b5995b38d538d45c9bd7ed6`
-- Local image size: `133614939` bytes
-- ACR manifest digest: `sha256:ce309557f55538654a76708efa283d0efd9f1812e1965a50131e6724b37414c3`
+- Local image ID: `sha256:8a7c591989dbb17784220410ff3505a4decf9f32fc3d9c5c94697728ad38c4a0`
+- Local image size: `134286683` bytes
+- ACR manifest digest: `sha256:f99995610b9ab267e9cfb69103489b4380b7c54d3f355e346ab648c8dcdbaed8`
