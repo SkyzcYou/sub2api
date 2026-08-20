@@ -66,6 +66,41 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-20：同步 upstream/main 至 0.1.179
+
+- 合入前定制分支提交：`7a4ec3a63f6a9a521224557a8a0d9fd04e718646`
+- 上游共同基线提交：`1b5dc676a9d35532ac2d88dbbe0ee2638b2ab05f`
+- 本次合入的上游目标提交：`2bc139ab527b4a687546d145dc7bb9063cf14510`
+- 上游提交范围：`1b5dc676a9d35532ac2d88dbbe0ee2638b2ab05f..2bc139ab527b4a687546d145dc7bb9063cf14510`
+- 上游最新提交日期：`2026-08-20T07:06:50Z`
+- 上游提交数量：`17`（其中非合并提交 `11`）
+- 变更范围：`50` 个文件，新增 `2610` 行，删除 `185` 行
+- 合入方式：`git merge --no-ff --no-edit upstream/main`
+- 合入后提交：`ae0c182b7a0ef509cfd3710c14d7204be25c7da0`
+- 关联上游 PR、Issue 或 Release：上游版本更新为 `0.1.179`
+- 主要变更：
+  - 为 Kimi、智谱、DeepSeek 账号新增 adaptive API protocol，可按入站协议在 Chat Completions、Anthropic 和 Responses 端点之间路由；管理端创建、编辑、预览和账号测试流程同步支持各协议端点。
+  - 增强 Responses 工具兼容和 tool-search discovery，将发现的工具提升为可调用工具，并补充跨轮次 WS bridge 工具处理。
+  - 支持配置代理探测目标，增加探测 URL 校验、默认配置和格式化处理，避免使用无效或不安全的探测地址。
+  - 修复自适应协议兼容性、OpenAI API Key Responses 探测、Grok 工具搜索、模型配置错误 SLA 统计和管理员角色选择样式。
+  - 移除遗留 README 赞助商内容及无效合作方 Logo 资源；版本同步至 `0.1.179`。
+- 数据库迁移：本次上游范围未新增数据库迁移文件。
+- 定制代码影响：
+  - `site_favicon` 独立设置存储、管理端上传、公开 API、SSR 注入和运行时更新链路均保留。
+  - `deploy/docker-compose.yml` 仍使用阿里云 ACR 镜像 `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名仍为 `xingliux`；OpenResty 脚本、安装手册和 `BUILD.md` 均保留。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check 7a4ec3a63f6a9a521224557a8a0d9fd04e718646 ae0c182b7a0ef509cfd3710c14d7204be25c7da0`：通过。
+  - `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `pnpm typecheck`：通过。
+  - `pnpm run test:run`：`239` 个测试文件、`1672` 个测试全部通过。
+  - `pnpm run build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+- 镜像或部署验证：本次仅完成本地上游合入和代码验证，未执行本次 `0.1.179` Docker build/push，也未在生产服务器执行迁移或重启；生产发布前应构建并推送新的 ACR `latest` 镜像。此前 ACR 中的镜像仍对应 `0.1.178`。
+- 合入总结：
+  - 本次同步重点是国产模型 adaptive 协议路由、Responses/tool-search 工具兼容、代理探测目标配置，以及 OpenAI/Grok/SLA 相关修复。
+  - `xingliux` 的 favicon、ACR 镜像地址和生产容器命名定制均已保留；发布后应重点验证国产平台不同协议端点、代理探测 URL 和 OpenAI Responses 工具链。
+
 ### 2026-08-20：同步 upstream/main 至当前 0.1.178
 
 - 合入前定制分支提交：`b2b09badef02b034651de86ec5cb16ca880195f2`
