@@ -66,6 +66,46 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-20：同步 upstream/main 至当前 0.1.178
+
+- 合入前定制分支提交：`b2b09badef02b034651de86ec5cb16ca880195f2`
+- 上游共同基线提交：`49504adc98d2b6d539491e865a340e644548979e`
+- 本次合入的上游目标提交：`1b5dc676a9d35532ac2d88dbbe0ee2638b2ab05f`
+- 上游提交范围：`49504adc98d2b6d539491e865a340e644548979e..1b5dc676a9d35532ac2d88dbbe0ee2638b2ab05f`
+- 上游最新提交日期：`2026-08-20T10:13:17+08:00`
+- 上游提交数量：`62`（其中非合并提交 `39`）
+- 变更范围：`183` 个文件，新增 `7005` 行，删除 `1345` 行
+- 合入方式：`git merge --no-ff --no-edit upstream/main`
+- 合入后提交：`549983fae7677ab6bfc06e0ffc5933ec1732e736`
+- 关联上游 PR、Issue 或 Release：上游仍为 `0.1.178`，本次为版本发布后的功能与修复同步
+- 主要变更：
+  - 新增渠道服务层级与区间倍率定价，补充长上下文计费、Anthropic Fast 请求计费和模型价格解析，支持渠道分时/分层倍率参与实际计费。
+  - 扩展复合平台路由，支持 Codex endpoints 和国产模型平台；放宽已解析 Grok/CN 目标的消息分发门控，并新增 `227_composite_routes_add_cn_providers.sql`。
+  - 国产模型账号支持请求头覆写，修复账号测试路由、配额标签布局和监控配额数据源校验。
+  - 增强 OpenAI Responses/Chat/WS：支持 429 后续 turn 恢复、WS bridge 保留 client tools、缓冲读取失败故障转移、Responses 输入 token 预探测、容量恢复和 reasoning 缓存回注。
+  - 增强 Grok 4.6 工具链：修复内联图片与 `view_image` 冲突，支持多入口图片工具协议，并保持 `xhigh` effort；同时降低 Codex tool-search discovery 输出。
+  - 优化 Usage 聚合、网关 reasoning 缓存和请求模型记录；移除遗留 Sora 引用，修复管理端平台筛选及国产平台前端展示。
+- 新增数据库迁移：
+  - `backend/migrations/226_add_usage_log_effective_model_indexes_notx.sql`
+  - `backend/migrations/227_composite_routes_add_cn_providers.sql`
+  - `backend/migrations/228_channel_pricing_multipliers.sql`
+  - 当前仓库同时存在 `226_channel_monitor_quota_mode.sql` 等既有 `226` 迁移；迁移系统按完整文件名和 checksum 独立管理，生产发布时不得只执行单个数字编号。
+- 定制代码影响：
+  - `site_favicon` 独立设置链路仍完整保留，favicon 专项测试通过。
+  - `deploy/docker-compose.yml` 仍使用阿里云 ACR 镜像 `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名仍为 `xingliux`；OpenResty 脚本、安装手册和 `BUILD.md` 均保留。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check b2b09badef02b034651de86ec5cb16ca880195f2 549983fae7677ab6bfc06e0ffc5933ec1732e736`：通过。
+  - `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `pnpm typecheck`：通过。
+  - `pnpm run test:run`：`238` 个测试文件、`1660` 个测试全部通过。
+  - `pnpm run build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+- 镜像或部署验证：本次仅完成本地上游合入和代码验证，未执行 Docker build/push，也未在生产服务器执行迁移或重启；发布前应先执行当前仓库全部未执行迁移，再构建并推送 ACR `latest` 镜像。
+- 合入总结：
+  - 本次同步重点是渠道倍率计费、复合平台/CN provider 路由、OpenAI/Codex 流式恢复与工具兼容，以及 Grok 图片工具和 Usage 聚合修复。
+  - `xingliux` 的 favicon、ACR 镜像地址和生产容器命名定制均已保留；生产升级需重点验证渠道倍率计费、复合平台路由和 OpenAI WS 长请求恢复。
+
 ### 2026-08-19：同步 upstream/main 至 0.1.178
 
 - 合入前定制分支提交：`60d91ca828db3a42f0f4fded6ba5a230ad7904c9`
