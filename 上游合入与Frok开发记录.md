@@ -66,6 +66,44 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-23：同步 upstream/main 至当前 0.1.179
+
+- 合入前定制分支提交：`06e3ec210011a0c8cd1af9d2b1891f2d2bf335d1`
+- 上游共同基线提交：`2bc139ab527b4a687546d145dc7bb9063cf14510`
+- 本次合入的上游目标提交：`d45135d87df16d48637f04ccd245727bc955ba54`
+- 上游提交范围：`2bc139ab527b4a687546d145dc7bb9063cf14510..d45135d87df16d48637f04ccd245727bc955ba54`
+- 上游最新提交日期：`2026-08-22T13:41:42+08:00`
+- 上游提交数量：`106`（其中非合并提交 `73`）
+- 变更范围：`268` 个文件，新增 `21690` 行，删除 `1939` 行
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`36b0b38577b26d15830e5908eb28d5d6e16f2b68`
+- 关联上游 PR、Issue 或 Release：上游仍为 `0.1.179`，本次为版本发布后的大批功能与修复同步
+- 主要变更：
+  - Ollama Cloud 请求新增 `max_tokens` 上限收敛，并将 Chat Completions 思维字段兼容为 `reasoning_content`。
+  - OpenAI OAuth 图片生成、父账号自动审核、文本账号调度和 sticky hash 得到修复；增强 API Key 健康熔断、账号状态切换、Guardian affinity、compact fallback、Responses 输入与工具 schema 兼容。
+  - OpenAI WebSocket/HTTP bridge 增强会话抢占、状态恢复和重放去重，修复重复或孤立工具调用、非法工具参数、失败响应透传及流式刷新等边界问题。
+  - DeepSeek 原生 Responses 支持客户端自定义工具，账号测试按平台和协议选择正确端点；国产供应商余额、配额探测及 Anthropic 原生直通兼容同步增强。
+  - Grok 默认模型迁移至 `grok-4.6`，完善 Realtime 预连接、429/容量/stream idle/compaction 重试、用量计费、媒体尺寸和内容拒绝兼容。
+  - Composite 分组放行 Messages 和视频生成端点；Chat Completions 文件输入转换为 Responses `input_file`，并加强 malformed tool call、Responses/Chat 生命周期与终止用量兼容。
+  - 修复 Gemini/Antigravity 模型目录和官方用量端点、前端 token refresh 锁循环、模型广场入口、运维错误详情以及安全审计日志噪声。
+- 数据库迁移：本次上游范围未新增数据库迁移文件。
+- 定制代码影响：
+  - `site_favicon` 独立设置的存储、管理端上传、公开 API、SSR 注入和运行时更新链路均保留；专项测试全部通过。
+  - `deploy/docker-compose.yml` 仍使用阿里云 ACR 镜像 `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名仍为 `xingliux`。
+  - 用户充值菜单、深色主题、OpenResty 脚本、安装手册和 `BUILD.md` 等定制均保留，相关前端测试通过。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check 06e3ec210011a0c8cd1af9d2b1891f2d2bf335d1 36b0b38577b26d15830e5908eb28d5d6e16f2b68`：通过。
+  - `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `pnpm run typecheck`：通过。
+  - `pnpm run test:run`：`241` 个测试文件、`1702` 个测试全部通过。
+  - `pnpm run build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+- 镜像或部署验证：本次仅完成本地上游合入和代码验证，未执行 Docker build/push，也未更新生产服务；ACR `latest` 仍不包含本次新增的 `106` 个上游提交。
+- 合入总结：
+  - 本次同步重点是 OpenAI Responses/WS/compact 与工具兼容、Grok 4.6 和重试计费、DeepSeek 原生 Responses 工具，以及 Ollama Cloud 请求兼容。
+  - `xingliux` 的 favicon、充值入口、主题、ACR 镜像地址和生产容器命名定制均已保留；后续发布应重点验证 OpenAI 长连接和工具续接、Grok 重试计费、DeepSeek 自定义工具及 Ollama Cloud 思维内容。
+
 ### 2026-08-20：同步 upstream/main 至 0.1.179
 
 - 合入前定制分支提交：`7a4ec3a63f6a9a521224557a8a0d9fd04e718646`
