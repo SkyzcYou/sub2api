@@ -99,7 +99,7 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
   - `pnpm run test:run`：`241` 个测试文件、`1702` 个测试全部通过。
   - `pnpm run build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
   - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
-- 镜像或部署验证：本次仅完成本地上游合入和代码验证，未执行 Docker build/push，也未更新生产服务；ACR `latest` 仍不包含本次新增的 `106` 个上游提交。
+- 镜像或部署验证：已基于提交 `82cd0c0353f168bb1cf3a535271665fd6cef11b0` 完成 `linux/amd64` Docker build/push；镜像内置版本为 `0.1.179`、提交号为 `82cd0c0353f168bb1cf3a535271665fd6cef11b0`，ACR `latest` manifest digest 为 `sha256:b843bcbfb3028176c0fccf7b75af5955617f106717991dd39eece425d16b91fb`。远端清单回读和 `docker pull` 均验证通过，尚未更新生产服务。
 - 合入总结：
   - 本次同步重点是 OpenAI Responses/WS/compact 与工具兼容、Grok 4.6 和重试计费、DeepSeek 原生 Responses 工具，以及 Ollama Cloud 请求兼容。
   - `xingliux` 的 favicon、充值入口、主题、ACR 镜像地址和生产容器命名定制均已保留；后续发布应重点验证 OpenAI 长连接和工具续接、Grok 重试计费、DeepSeek 自定义工具及 Ollama Cloud 思维内容。
