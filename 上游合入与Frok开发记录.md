@@ -94,10 +94,10 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
   - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
   - `pnpm exec vitest run src/components/layout/__tests__/AppSidebar.spec.ts src/views/user/__tests__/USDTRechargeView.spec.ts src/views/admin/__tests__/SettingsView.spec.ts`：`3` 个测试文件、`44` 个测试全部通过；仅有既有的 `router-link` mock 和 Browserslist 数据过期提示。
   - `bash deploy/tests/docker-compose-gateway-env-test.sh`：通过。
-- 镜像或部署验证：本次仅完成上游合入和代码验证，未重新执行 Docker build/push，也未更新生产服务。ACR `latest` 仍为基于提交 `665b302d464f291bd98fef59472017f566b8e98e` 发布的 `0.1.180`，manifest digest 为 `sha256:deb509b9f1fa6aec8cfb020e895c8fe28115c88dff9f7a3b749a6be0366fcb06`，不包含本次 `0.1.181` 更新。
+- 镜像或部署验证：已基于提交 `e30521eae1b3e10f15b198a34f9828551b6a3b7a` 完成 `linux/amd64` Docker build/push；镜像内置版本为 `0.1.181`、提交号为 `e30521eae1b3e10f15b198a34f9828551b6a3b7a`，本地镜像 ID 为 `sha256:c2a14a39a2326c2478ec85827183514b5eb10ebf9c9044190372265404826e37`，ACR `latest` manifest digest 为 `sha256:e76d3274d3472e52600f1a6e49e699cc48b2906c9a28f3e4d44397a4108bc888`。镜像运行时版本、远端清单回读和 `docker pull` 均验证通过，尚未更新生产服务。
 - 合入总结：
   - 本次同步提升 Gemini 工具 schema 对 OpenAPI/JSON Schema 边界值的兼容性，并让 Grok OAuth、模型列表与计费探测跟随官方 CLI 身份。
-  - 生产发布前无需新增数据库迁移，但需要重新构建并推送 `0.1.181` 镜像；部署后重点验证 Gemini 工具枚举、Grok OAuth 请求头和 XAI 计费探测。
+  - 本次发布无需新增数据库迁移，`0.1.181` 镜像已重新构建并推送；生产部署后重点验证 Gemini 工具枚举、Grok OAuth 请求头和 XAI 计费探测。
 
 ### 2026-08-24：同步 upstream/main 的 0.1.180 后续修复
 
