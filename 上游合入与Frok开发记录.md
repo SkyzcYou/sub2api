@@ -94,10 +94,10 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
   - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
   - `pnpm exec vitest run src/components/layout/__tests__/AppSidebar.spec.ts src/views/user/__tests__/USDTRechargeView.spec.ts src/views/admin/__tests__/SettingsView.spec.ts`：`3` 个测试文件、`44` 个测试全部通过；仅有既有的 `router-link` mock 和 Browserslist 数据过期提示。
   - `bash deploy/tests/docker-compose-gateway-env-test.sh`：通过。
-- 镜像或部署验证：本次只完成代码合入和验证，尚未重新执行 Docker build/push，也未更新生产服务。ACR `latest` 仍为基于提交 `07808977b928217a247e62f16b44677417dfc19d` 发布的 `0.1.180`，manifest digest 为 `sha256:e0a19fb5653b10f13024f5ba81bcecc0679534d84d10ded0496d73211f43733e`，不包含本次后续修复。
+- 镜像或部署验证：已基于提交 `665b302d464f291bd98fef59472017f566b8e98e` 完成 `linux/amd64` Docker build/push；镜像内置版本为 `0.1.180`、提交号为 `665b302d464f291bd98fef59472017f566b8e98e`，本地镜像 ID 为 `sha256:02e341c758304254d7db30927f1ee6b784ded8d6d772aea7ba88e24476e413d9`，ACR `latest` manifest digest 为 `sha256:deb509b9f1fa6aec8cfb020e895c8fe28115c88dff9f7a3b749a6be0366fcb06`。镜像运行时版本、远端清单回读和 `docker pull` 均验证通过，尚未更新生产服务。
 - 合入总结：
   - 本次同步解决 Responses Lite 串行工具参数被误删，以及同类型 rejected `status` 逐项清理导致重试预算耗尽的问题。
-  - 上游版本号和迁移集合均未变化；发布本次代码需要重新构建并推送镜像，部署后重点验证 Responses Lite 工具调用和长对话重放兼容性。
+  - 上游版本号和迁移集合均未变化，本次代码已重新构建并推送；生产部署后重点验证 Responses Lite 工具调用和长对话重放兼容性。
 
 ### 2026-08-24：同步 upstream/main 至 0.1.180
 
