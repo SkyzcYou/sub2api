@@ -66,6 +66,39 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-25：同步 upstream/main 至 0.1.181
+
+- 合入前定制分支提交：`f7c6c6fa92f768927f9d8b62c4ee97def55f7b09`
+- 上游共同基线提交：`07931bbb180f3daea600156b92f423cbf0235325`
+- 本次合入的上游目标提交：`e2d9b823f63dc4e8f4014be3fd24a0a73e339867`
+- 上游提交范围：`07931bbb180f3daea600156b92f423cbf0235325..e2d9b823f63dc4e8f4014be3fd24a0a73e339867`
+- 上游最新提交日期：`2026-08-24T14:35:57Z`
+- 上游提交数量：`5`（其中非合并提交 `3`）
+- 变更范围：`12` 个文件，新增 `115` 行，删除 `50` 行
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`b8ec9869fba88a75459b037b26cdf55ed0b0035d`
+- 关联上游 PR、Issue 或 Release：PR `#6150`、`#6116`；上游版本更新为 `0.1.181`
+- 主要变更：
+  - Gemini 工具 schema 清理新增 `deprecated` 字段剔除；将枚举中的布尔值、数字和 `null` 规范化为字符串，对包含对象等非标量值的枚举直接丢弃，避免上游 schema 校验失败。
+  - Grok/XAI CLI 身份版本从 `0.2.114` 更新至 `0.2.120`，OAuth、模型观测、计费探测和原始 Chat Completions 请求统一使用官方 CLI User-Agent 与请求头；保留安全的环境变量版本覆盖规则。
+- 数据库迁移：本次上游范围没有新增数据库迁移文件。
+- 定制代码影响：
+  - 本次修改集中在 Gemini/Grok 后端兼容层，未触及设置、前端、数据库迁移或部署文件。
+  - `site_favicon` 独立设置、USDT/卡网充值入口、深色主题、OpenResty 脚本和部署文档均保留；定制专项测试通过。
+  - `deploy/docker-compose.yml` 仍使用阿里云 ACR `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名仍为 `xingliux`。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check f7c6c6fa92f768927f9d8b62c4ee97def55f7b09 b8ec9869fba88a75459b037b26cdf55ed0b0035d`：通过。
+  - `go test ./internal/service ./internal/pkg/xai ./internal/repository -run 'Test(CleanToolSchema|SyncGrokObservedModels|BuildGrok|ForwardGrok|ApplyGrokCLI|HTTPUpstream).*' -count=1`：通过。
+  - Go `1.27.0` 下执行 `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+  - `pnpm exec vitest run src/components/layout/__tests__/AppSidebar.spec.ts src/views/user/__tests__/USDTRechargeView.spec.ts src/views/admin/__tests__/SettingsView.spec.ts`：`3` 个测试文件、`44` 个测试全部通过；仅有既有的 `router-link` mock 和 Browserslist 数据过期提示。
+  - `bash deploy/tests/docker-compose-gateway-env-test.sh`：通过。
+- 镜像或部署验证：本次仅完成上游合入和代码验证，未重新执行 Docker build/push，也未更新生产服务。ACR `latest` 仍为基于提交 `665b302d464f291bd98fef59472017f566b8e98e` 发布的 `0.1.180`，manifest digest 为 `sha256:deb509b9f1fa6aec8cfb020e895c8fe28115c88dff9f7a3b749a6be0366fcb06`，不包含本次 `0.1.181` 更新。
+- 合入总结：
+  - 本次同步提升 Gemini 工具 schema 对 OpenAPI/JSON Schema 边界值的兼容性，并让 Grok OAuth、模型列表与计费探测跟随官方 CLI 身份。
+  - 生产发布前无需新增数据库迁移，但需要重新构建并推送 `0.1.181` 镜像；部署后重点验证 Gemini 工具枚举、Grok OAuth 请求头和 XAI 计费探测。
+
 ### 2026-08-24：同步 upstream/main 的 0.1.180 后续修复
 
 - 合入前定制分支提交：`5bf615ae36edd4daefeeeadd325a28012f73f831`
