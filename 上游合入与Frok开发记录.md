@@ -104,10 +104,10 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
   - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
   - `go test ./migrations -count=1 -v`：通过，包含插件 `229/230` 和卡网充值 `224` 迁移专项测试。
   - `bash deploy/tests/docker-compose-gateway-env-test.sh`：通过。
-- 镜像或部署验证：本次仅完成本地上游合入和代码验证，未执行 `0.1.180` Docker build/push，也未更新生产服务；ACR `latest` 当前仍为此前发布的 `0.1.179`，manifest digest 为 `sha256:1c011156f1f7118a139153e043d1bcadf936f3f8e7a3f7de4e616e5cfcd7de7d`。
+- 镜像或部署验证：已基于提交 `07808977b928217a247e62f16b44677417dfc19d` 完成 `linux/amd64` Docker build/push；镜像内置版本为 `0.1.180`、提交号为 `07808977b928217a247e62f16b44677417dfc19d`，本地镜像 ID 为 `sha256:c30c5b562157bbbffea7839bf46ddc7b7da5bf7d7b5b306148ba78330fe4cdc7`，ACR `latest` manifest digest 为 `sha256:e0a19fb5653b10f13024f5ba81bcecc0679534d84d10ded0496d73211f43733e`。远端清单回读和 `docker pull` 均验证通过，尚未更新生产服务。
 - 合入总结：
   - 本次同步核心是可管理的插件运行时、OpenAI Fast 档位与计费、自动重置卡、渠道分时计价和模型广场价格披露，并完成 Go 1.27 与前端安全依赖升级。
-  - 发布 `0.1.180` 前需使用 Go `1.27.0` 构建镜像并确认插件迁移 `229/230` 成功；发布后重点验证插件安装/启停、Fast 档位计费、自动重置卡、工作日分时价格和既有充值/favicon 定制。
+  - `0.1.180` 已使用 Go `1.27.0` 构建并发布；生产部署时需确认插件迁移 `229/230` 成功，并重点验证插件安装/启停、Fast 档位计费、自动重置卡、工作日分时价格和既有充值/favicon 定制。
 
 ### 2026-08-23：同步 upstream/main 至当前 0.1.179
 
