@@ -66,6 +66,49 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-24：同步 upstream/main 至 0.1.180
+
+- 合入前定制分支提交：`a8221fcb30bc64e64b9dcb432a9df753a211249c`
+- 上游共同基线提交：`d45135d87df16d48637f04ccd245727bc955ba54`
+- 本次合入的上游目标提交：`03e8ab41346b42de9ece4e3e5bfcb6ca2b8cb57e`
+- 上游提交范围：`d45135d87df16d48637f04ccd245727bc955ba54..03e8ab41346b42de9ece4e3e5bfcb6ca2b8cb57e`
+- 上游最新提交日期：`2026-08-24T07:30:34Z`
+- 上游提交数量：`70`（其中非合并提交 `45`）
+- 变更范围：`276` 个文件，新增 `18347` 行，删除 `1121` 行
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`eff65f347e88d10317db34984d9daf8eccbcfef5`
+- 关联上游 PR、Issue 或 Release：上游版本更新为 `0.1.180`
+- 主要变更：
+  - 新增插件系统，包含插件包与 manifest 规范、gRPC 运行时、兼容性与安全校验、仓储和管理服务、OAuth 出站传输接入，以及管理端插件安装、启停和配置页面。
+  - OpenAI Responses、Chat Completions 和 WebSocket 全链路支持 Fast `service_tier`，计费按上游实际返回档位只降不升；增强流式终止输出、工具调用身份、OAuth 账号模型同步和 Responses Lite 串行工具兼容。
+  - OpenAI 重置卡支持按用量阈值自动执行，补充重置工作流、额度检查、父子账号约束和管理端配置。
+  - 渠道分时计价新增工作日规则和统一 token 计费路径；模型广场展示工作日时段、上下文阶梯单价和倍率叠加口径。
+  - 新增模型列表读取上限；运维错误详情支持返回列表并保留筛选状态，修复 cgroup/宿主机内存指标混用。
+  - 修复国产平台 Anthropic 用量 token 归一化、带方括号 IPv6 代理解析、用户并发 `0` 表示无限、账号优先级默认展示，以及 Compose 网关环境变量和强制 HTTP 透传。
+  - Go 工具链升级至 `1.27.0`，升级 golangci-lint/gosec 规则并逐点处理安全告警；升级 DOMPurify 以修复多项 sanitizer bypass XSS 风险。
+- 新增数据库迁移：
+  - `backend/migrations/229_plugins.sql`
+  - `backend/migrations/230_plugin_artifacts.sql`
+  - 两个迁移分别创建插件元数据/状态存储和插件制品字段；生产升级必须确认容器启动迁移机制成功执行全部未执行迁移，不能只按数字手工挑选一个文件。
+- 定制代码影响：
+  - `site_favicon` 独立设置的存储、管理端上传、公开 API、SSR 注入和运行时更新链路均保留；专项测试全部通过。
+  - `deploy/docker-compose.yml` 仍使用阿里云 ACR 镜像 `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名仍为 `xingliux`，并合入上游新增网关环境变量。
+  - USDT 充值页、卡网充值菜单及其迁移、深色主题、OpenResty 脚本、安装手册、`BUILD.md` 和本文档均保留；对应迁移和前端测试通过。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件；合并后逐项核对共享设置、侧边栏、路由、品牌和部署文件，确认上游插件入口与 `xingliux` 定制共存。
+- 验证结果：
+  - `git diff --check a8221fcb30bc64e64b9dcb432a9df753a211249c eff65f347e88d10317db34984d9daf8eccbcfef5`：通过。
+  - Go `1.27.0` 下执行 `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `pnpm run typecheck`：通过。
+  - 首次 `pnpm run test:run` 的 `246` 个测试文件、`1750` 个断言均通过，但全量并行期间捕获到一次 `AccountsView.selectAllResults.spec.ts` 未处理异步错误；该用例单独重跑通过，随后完整重跑也以 `246` 个测试文件、`1750` 个测试全部通过结束。
+  - `pnpm run build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+  - `go test ./migrations -count=1 -v`：通过，包含插件 `229/230` 和卡网充值 `224` 迁移专项测试。
+  - `bash deploy/tests/docker-compose-gateway-env-test.sh`：通过。
+- 镜像或部署验证：本次仅完成本地上游合入和代码验证，未执行 `0.1.180` Docker build/push，也未更新生产服务；ACR `latest` 当前仍为此前发布的 `0.1.179`，manifest digest 为 `sha256:1c011156f1f7118a139153e043d1bcadf936f3f8e7a3f7de4e616e5cfcd7de7d`。
+- 合入总结：
+  - 本次同步核心是可管理的插件运行时、OpenAI Fast 档位与计费、自动重置卡、渠道分时计价和模型广场价格披露，并完成 Go 1.27 与前端安全依赖升级。
+  - 发布 `0.1.180` 前需使用 Go `1.27.0` 构建镜像并确认插件迁移 `229/230` 成功；发布后重点验证插件安装/启停、Fast 档位计费、自动重置卡、工作日分时价格和既有充值/favicon 定制。
+
 ### 2026-08-23：同步 upstream/main 至当前 0.1.179
 
 - 合入前定制分支提交：`06e3ec210011a0c8cd1af9d2b1891f2d2bf335d1`

@@ -27,11 +27,13 @@ Docker prompts for the Container Registry credential password.
 ```bash
 export ACR_REGISTRY=crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com
 export IMAGE="$ACR_REGISTRY/skyzcstack/xingliux"
+export VERSION="$(tr -d '\r\n' < backend/cmd/server/VERSION)"
+export COMMIT="$(git rev-parse HEAD)"
 
 docker build \
-  --build-arg VERSION=0.1.179 \
-  --build-arg COMMIT=82cd0c0353f168bb1cf3a535271665fd6cef11b0 \
-  --build-arg GOLANG_IMAGE=golang:1.26.6-alpine \
+  --build-arg VERSION="$VERSION" \
+  --build-arg COMMIT="$COMMIT" \
+  --build-arg GOLANG_IMAGE=golang:1.27.0-alpine \
   --build-arg NPM_CONFIG_REGISTRY=https://registry.npmmirror.com \
   -t "$IMAGE:latest" \
   .
