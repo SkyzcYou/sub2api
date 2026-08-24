@@ -66,6 +66,39 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-24：同步 upstream/main 的 0.1.180 后续修复
+
+- 合入前定制分支提交：`5bf615ae36edd4daefeeeadd325a28012f73f831`
+- 上游共同基线提交：`03e8ab41346b42de9ece4e3e5bfcb6ca2b8cb57e`
+- 本次合入的上游目标提交：`07931bbb180f3daea600156b92f423cbf0235325`
+- 上游提交范围：`03e8ab41346b42de9ece4e3e5bfcb6ca2b8cb57e..07931bbb180f3daea600156b92f423cbf0235325`
+- 上游最新提交日期：`2026-08-24T22:01:14+08:00`
+- 上游提交数量：`4`（其中非合并提交 `2`）
+- 变更范围：`4` 个文件，新增 `130` 行，删除 `8` 行
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`c669d7759edc51039295ddb92fd5a024b05e1208`
+- 关联上游 PR、Issue 或 Release：PR `#6148`、`#6143`；上游版本仍为 `0.1.180`
+- 主要变更：
+  - Responses Lite 将顶层工具移动到 `input` 的 `additional_tools` 项后，仍能识别请求携带工具并保留 `parallel_tool_calls: false`，避免 OpenAI 按默认并行模式处理并返回 `unsupported_value`。
+  - OpenAI Responses 因某类输入项的 `status` 字段被拒绝时，一次性清理所有同类型输入项的 `status`，避免逐项重试耗尽有限的重试次数；其他类型输入项保持不变，无类型信息时仍按原逻辑只清理被点名项。
+- 数据库迁移：本次上游范围没有新增数据库迁移文件。
+- 定制代码影响：
+  - 本次仅修改后端 OpenAI 请求规范化和 rejected 字段重试逻辑，未触及设置、前端、数据库迁移或部署文件。
+  - `site_favicon` 独立设置、USDT/卡网充值入口、深色主题、OpenResty 脚本和部署文档均保留；定制专项测试通过。
+  - `deploy/docker-compose.yml` 仍使用阿里云 ACR `xingliux:latest` 镜像，主容器名仍为 `xingliux`。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check 5bf615ae36edd4daefeeeadd325a28012f73f831 c669d7759edc51039295ddb92fd5a024b05e1208`：通过。
+  - `go test ./internal/service -run 'Test.*(Rejected|ParallelTool|AdditionalTools|Reasoning)' -count=1`：通过。
+  - Go `1.27.0` 下执行 `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+  - `pnpm exec vitest run src/components/layout/__tests__/AppSidebar.spec.ts src/views/user/__tests__/USDTRechargeView.spec.ts src/views/admin/__tests__/SettingsView.spec.ts`：`3` 个测试文件、`44` 个测试全部通过；仅有既有的 `router-link` mock 和 Browserslist 数据过期提示。
+  - `bash deploy/tests/docker-compose-gateway-env-test.sh`：通过。
+- 镜像或部署验证：本次只完成代码合入和验证，尚未重新执行 Docker build/push，也未更新生产服务。ACR `latest` 仍为基于提交 `07808977b928217a247e62f16b44677417dfc19d` 发布的 `0.1.180`，manifest digest 为 `sha256:e0a19fb5653b10f13024f5ba81bcecc0679534d84d10ded0496d73211f43733e`，不包含本次后续修复。
+- 合入总结：
+  - 本次同步解决 Responses Lite 串行工具参数被误删，以及同类型 rejected `status` 逐项清理导致重试预算耗尽的问题。
+  - 上游版本号和迁移集合均未变化；发布本次代码需要重新构建并推送镜像，部署后重点验证 Responses Lite 工具调用和长对话重放兼容性。
+
 ### 2026-08-24：同步 upstream/main 至 0.1.180
 
 - 合入前定制分支提交：`a8221fcb30bc64e64b9dcb432a9df753a211249c`
