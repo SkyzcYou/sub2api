@@ -98,10 +98,10 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
   - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
   - `pnpm exec vitest run src/components/layout/__tests__/AppSidebar.spec.ts src/views/user/__tests__/USDTRechargeView.spec.ts src/views/user/__tests__/PaymentResultView.spec.ts src/views/admin/__tests__/SettingsView.spec.ts`：`4` 个测试文件、`58` 个测试全部通过；仅有既有的 `router-link` mock 和 Browserslist 数据过期提示。
   - `bash deploy/tests/docker-compose-gateway-env-test.sh`：通过。
-- 镜像或部署验证：本次仅完成上游合入和代码验证，未重新执行 Docker build/push，也未更新生产服务。ACR `latest` 仍为基于提交 `e30521eae1b3e10f15b198a34f9828551b6a3b7a` 发布的 `0.1.181`，manifest digest 为 `sha256:e76d3274d3472e52600f1a6e49e699cc48b2906c9a28f3e4d44397a4108bc888`，不包含本次 `0.1.182` 更新。
+- 镜像或部署验证：已基于提交 `a4eb01c62eff1bc71f232f4d7208470aff585da8` 完成 `linux/amd64` Docker build/push；镜像内置版本为 `0.1.182`、提交号为 `a4eb01c62eff1bc71f232f4d7208470aff585da8`，本地镜像 ID 为 `sha256:b59430c0d6b5dbbbdf5bd44679a76157938e791649ed93533915e8fd3faba605`，ACR `latest` manifest digest 为 `sha256:c46533f16a0c5340021352ba3e82415b985a53b395fe556566feb2b8f5d77e6d`。镜像运行时版本、远端清单回读和 `docker pull` 均验证通过，尚未更新生产服务。
 - 合入总结：
   - 本次同步重点提升 OpenAI Responses Lite/WS 工具调用可靠性、Anthropic cache TTL 计费准确性、OpenCode/Antigravity/Grok 兼容性，以及支付余额和 Composite/Monitor 归因正确性。
-  - 生产发布前无需新增数据库迁移，但需要重新构建并推送 `0.1.182` 镜像；部署后重点验证 Responses Lite 长连接工具调用、Anthropic 缓存计费、支付成功余额刷新和 Kimi K3 路由。
+  - 本次发布无需新增数据库迁移，`0.1.182` 镜像已重新构建并推送；生产部署后重点验证 Responses Lite 长连接工具调用、Anthropic 缓存计费、支付成功余额刷新和 Kimi K3 路由。
 
 ### 2026-08-25：同步 upstream/main 至 0.1.181
 
