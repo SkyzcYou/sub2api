@@ -94,10 +94,10 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
   - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
   - `pnpm exec vitest run src/components/layout/__tests__/AppSidebar.spec.ts src/views/user/__tests__/USDTRechargeView.spec.ts src/views/admin/__tests__/SettingsView.spec.ts`：`3` 个测试文件、`44` 个测试全部通过；首次运行捕获到一次 jsdom XHR 网络噪声但未导致失败，相关设置用例单独重跑通过且未复现。
   - `bash deploy/tests/docker-compose-gateway-env-test.sh`：通过。
-- 镜像或部署验证：本次仅完成上游合入和代码验证，未重新执行 Docker build/push，也未更新生产服务。ACR `latest` 仍为基于提交 `a4eb01c62eff1bc71f232f4d7208470aff585da8` 发布的 `0.1.182`，manifest digest 为 `sha256:c46533f16a0c5340021352ba3e82415b985a53b395fe556566feb2b8f5d77e6d`，不包含本次 OAuth 429 后续修复。
+- 镜像或部署验证：已基于提交 `aaf58137de4d4e7ef6d4a7a91d031c9e3f294abb` 完成 `linux/amd64` Docker build/push；镜像内置版本为 `0.1.182`、提交号为 `aaf58137de4d4e7ef6d4a7a91d031c9e3f294abb`，本地镜像 ID 为 `sha256:72cdbe501f5439d5fdfaeae8c8fd3f9a97a3fceac0ecfebd2fa46b9873e9c546`，ACR `latest` manifest digest 为 `sha256:90f5f84338c5395852b7bed8e759431979eb231485fac72894585153df6b0713`。镜像运行时版本、远端清单回读和 `docker pull` 均验证通过，尚未更新生产服务。
 - 合入总结：
   - 本次同步避免配额已耗尽的 OpenAI OAuth 账号继续原账号重试，从而更快切换到可用账号，同时保留瞬时限流的低成本重试行为。
-  - 上游版本号和迁移集合均未变化；发布本次修复需要重新构建并推送镜像，部署后重点观察 OAuth 账号的 5h/7d 配额暂停时间和瞬时 429 故障转移。
+  - 上游版本号和迁移集合均未变化，本次修复镜像已重新构建并推送；生产部署后重点观察 OAuth 账号的 5h/7d 配额暂停时间和瞬时 429 故障转移。
 
 ### 2026-08-25：同步 upstream/main 至 0.1.182
 
