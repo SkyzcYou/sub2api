@@ -66,6 +66,43 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-25：同步 upstream/main 至 0.1.182
+
+- 合入前定制分支提交：`e530cea183d5d63f1317e5286616105eadb25792`
+- 上游共同基线提交：`e2d9b823f63dc4e8f4014be3fd24a0a73e339867`
+- 本次合入的上游目标提交：`aa2c4e8d136b13553ac7bae3d76c25715333a554`
+- 上游提交范围：`e2d9b823f63dc4e8f4014be3fd24a0a73e339867..aa2c4e8d136b13553ac7bae3d76c25715333a554`
+- 上游最新提交日期：`2026-08-25T04:47:52Z`
+- 上游提交数量：`22`（其中非合并提交 `14`）
+- 变更范围：`48` 个文件，新增 `872` 行，删除 `154` 行
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`e6ca09498d85c88ea97238ab3979aaabccca1cf5`
+- 关联上游 PR、Issue 或 Release：PR `#6157`、`#6155`、`#6152`、`#6149`、`#6132`、`#6116` 等；上游版本更新为 `0.1.182`
+- 主要变更：
+  - OpenAI Responses Lite、WebSocket/HTTP bridge 和透传链路统一强化工具调用模式，固定并校验 `parallel_tool_calls`，保留数值精度，并覆盖 OAuth/API Key、WS 和桥接请求路径。
+  - OpenAI OAuth 图片生成保留用户提示词原文；补充 Responses Lite 工具规范化和图片请求回归测试。
+  - 修复 Anthropic cache TTL 流式计费重复累计，规范 5m/1h cache creation 明细与聚合总量之间的矛盾。
+  - OpenCode Go 用量限制支持解析“若干天/小时后重置”的自然语言时间；Antigravity Sonnet 4.6 迁移保留显式 Sonnet 4.5 路由。
+  - 支付成功页完成余额刷新；Composite 新增 Kimi Code K3/K3-256K 路由；Channel Monitor v2 将 composite 分组错误归因到具体账号平台。
+  - 更新 Grok/OpenAI 相关兼容测试和赞助商资源，版本同步至 `0.1.182`。
+- 数据库迁移：本次上游范围没有新增数据库迁移文件。
+- 定制代码影响：
+  - 本次修改集中在后端网关兼容、计费、调度、支付结果和少量前端支付页，未触及 `site_favicon` 设置链路、OpenResty 脚本或 Compose 定制。
+  - `site_favicon` 独立设置、USDT/卡网充值入口、深色主题、部署文档和 ACR 镜像配置均保留；定制专项测试通过。
+  - `deploy/docker-compose.yml` 仍使用阿里云 ACR `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名仍为 `xingliux`。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check e530cea183d5d63f1317e5286616105eadb25792 e6ca09498d85c88ea97238ab3979aaabccca1cf5`：通过。
+  - Go `1.27.0` 下执行 `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - OpenAI Lite/WS、计费、支付、Antigravity、Composite、Channel Monitor 专项测试：通过。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+  - `pnpm exec vitest run src/components/layout/__tests__/AppSidebar.spec.ts src/views/user/__tests__/USDTRechargeView.spec.ts src/views/user/__tests__/PaymentResultView.spec.ts src/views/admin/__tests__/SettingsView.spec.ts`：`4` 个测试文件、`58` 个测试全部通过；仅有既有的 `router-link` mock 和 Browserslist 数据过期提示。
+  - `bash deploy/tests/docker-compose-gateway-env-test.sh`：通过。
+- 镜像或部署验证：本次仅完成上游合入和代码验证，未重新执行 Docker build/push，也未更新生产服务。ACR `latest` 仍为基于提交 `e30521eae1b3e10f15b198a34f9828551b6a3b7a` 发布的 `0.1.181`，manifest digest 为 `sha256:e76d3274d3472e52600f1a6e49e699cc48b2906c9a28f3e4d44397a4108bc888`，不包含本次 `0.1.182` 更新。
+- 合入总结：
+  - 本次同步重点提升 OpenAI Responses Lite/WS 工具调用可靠性、Anthropic cache TTL 计费准确性、OpenCode/Antigravity/Grok 兼容性，以及支付余额和 Composite/Monitor 归因正确性。
+  - 生产发布前无需新增数据库迁移，但需要重新构建并推送 `0.1.182` 镜像；部署后重点验证 Responses Lite 长连接工具调用、Anthropic 缓存计费、支付成功余额刷新和 Kimi K3 路由。
+
 ### 2026-08-25：同步 upstream/main 至 0.1.181
 
 - 合入前定制分支提交：`f7c6c6fa92f768927f9d8b62c4ee97def55f7b09`
