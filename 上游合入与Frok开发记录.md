@@ -66,6 +66,39 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-25：同步 upstream/main 的 0.1.182 OAuth 429 调度修复
+
+- 合入前定制分支提交：`3f00cb75f28d98d264a1f0818d22997d6308d3cb`
+- 上游共同基线提交：`aa2c4e8d136b13553ac7bae3d76c25715333a554`
+- 本次合入的上游目标提交：`832cf4df659acc0a0d45feccb2b7bf99ea606198`
+- 上游提交范围：`aa2c4e8d136b13553ac7bae3d76c25715333a554..832cf4df659acc0a0d45feccb2b7bf99ea606198`
+- 上游最新提交日期：`2026-08-25T20:41:41+08:00`
+- 上游提交数量：`2`（其中非合并提交 `1`）
+- 变更范围：`4` 个文件，新增 `118` 行，删除 `14` 行
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`b67361f5b1205e658dcad4c9f7d7ab1728310a5e`
+- 关联上游 PR、Issue 或 Release：PR `#6208`；上游版本仍为 `0.1.182`
+- 主要变更：
+  - OpenAI OAuth 账号收到 429 时区分明确的 5 小时/7 天配额耗尽、带重置时间的配额信号和普通瞬时限流；配额耗尽会立即暂停账号至重置时间，不再继续消耗同账号重试窗口。
+  - 普通瞬时 429 仍保留短窗口同账号重试；流式 HTTP 200 内的语义 429 不使用成功响应的配额头做分类，但继续透传 `Retry-After`、请求 ID 等故障转移信息。
+- 数据库迁移：本次上游范围没有新增数据库迁移文件。
+- 定制代码影响：
+  - 本次仅修改后端 OpenAI OAuth 429 分类、运行时阻断和故障转移逻辑，未触及设置、前端、数据库迁移或部署文件。
+  - `site_favicon` 独立设置、USDT/卡网充值入口、深色主题、OpenResty 脚本和部署文档均保留；定制专项测试通过。
+  - `deploy/docker-compose.yml` 仍使用阿里云 ACR `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名仍为 `xingliux`。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check 3f00cb75f28d98d264a1f0818d22997d6308d3cb b67361f5b1205e658dcad4c9f7d7ab1728310a5e`：通过。
+  - `go test -tags unit ./internal/service -run '^(TestOpenAI429FastPath_|TestOpenAIStream429|TestOpenAIHTTP429|TestOpenAI429RetryDelay|TestOpenAIRuntimeBlock_|TestOpenAIOAuth429_)' -count=1 -v`：`15` 个 OpenAI 429/运行时阻断专项测试全部通过。
+  - Go `1.27.0` 下执行 `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+  - `pnpm exec vitest run src/components/layout/__tests__/AppSidebar.spec.ts src/views/user/__tests__/USDTRechargeView.spec.ts src/views/admin/__tests__/SettingsView.spec.ts`：`3` 个测试文件、`44` 个测试全部通过；首次运行捕获到一次 jsdom XHR 网络噪声但未导致失败，相关设置用例单独重跑通过且未复现。
+  - `bash deploy/tests/docker-compose-gateway-env-test.sh`：通过。
+- 镜像或部署验证：本次仅完成上游合入和代码验证，未重新执行 Docker build/push，也未更新生产服务。ACR `latest` 仍为基于提交 `a4eb01c62eff1bc71f232f4d7208470aff585da8` 发布的 `0.1.182`，manifest digest 为 `sha256:c46533f16a0c5340021352ba3e82415b985a53b395fe556566feb2b8f5d77e6d`，不包含本次 OAuth 429 后续修复。
+- 合入总结：
+  - 本次同步避免配额已耗尽的 OpenAI OAuth 账号继续原账号重试，从而更快切换到可用账号，同时保留瞬时限流的低成本重试行为。
+  - 上游版本号和迁移集合均未变化；发布本次修复需要重新构建并推送镜像，部署后重点观察 OAuth 账号的 5h/7d 配额暂停时间和瞬时 429 故障转移。
+
 ### 2026-08-25：同步 upstream/main 至 0.1.182
 
 - 合入前定制分支提交：`e530cea183d5d63f1317e5286616105eadb25792`
