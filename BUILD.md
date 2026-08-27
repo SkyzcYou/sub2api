@@ -31,6 +31,7 @@ export VERSION="$(tr -d '\r\n' < backend/cmd/server/VERSION)"
 export COMMIT="$(git rev-parse HEAD)"
 
 docker build \
+  --platform linux/amd64 \
   --build-arg VERSION="$VERSION" \
   --build-arg COMMIT="$COMMIT" \
   --build-arg GOLANG_IMAGE=golang:1.27.0-alpine \
@@ -54,9 +55,11 @@ docker pull "$IMAGE:latest"
 ## Published Build
 
 - Source branch: `xingliux`
-- Version: `0.1.182`
-- Source revision: `aaf58137de4d4e7ef6d4a7a91d031c9e3f294abb`
+- Version: `0.1.183`
+- Source revision: `a469b987b7522f0974cc034b637dd4b905717cf4`
 - Platform: `linux/amd64`
-- Local image ID: `sha256:72cdbe501f5439d5fdfaeae8c8fd3f9a97a3fceac0ecfebd2fa46b9873e9c546`
-- Local image size: `138755425` bytes
-- ACR manifest digest: `sha256:90f5f84338c5395852b7bed8e759431979eb231485fac72894585153df6b0713`
+- Local image ID: `sha256:77fa337717028ff2fd38874f544bb261e05a1c7f1aed074b8abb6f9dee7c4bdb`
+- Local image size: `138935649` bytes
+- ACR manifest digest: `sha256:cf027662c566412196d71d5b7e2dd51283ff97959235d9e961f7a8367d3d7309`
+- Published at: `2026-08-27`
+- Production deployment: not updated or restarted by this build/push operation

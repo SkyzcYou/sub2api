@@ -66,6 +66,44 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-27：同步 upstream/main 至 0.1.183
+
+- 合入前定制分支提交：`d09a66306687473537f3d64025dbf582baaa43e5`
+- 上游共同基线提交：`832cf4df659acc0a0d45feccb2b7bf99ea606198`
+- 本次合入的上游目标提交：`efb46db0a960fdad94502b1c3a982a0051cf5245`
+- 上游提交范围：`832cf4df659acc0a0d45feccb2b7bf99ea606198..efb46db0a960fdad94502b1c3a982a0051cf5245`
+- 上游最新提交日期：`2026-08-26T15:49:38+08:00`
+- 上游提交数量：`35`（其中非合并提交 `23`）
+- 变更范围：`80` 个文件，新增 `8889` 行，删除 `227` 行
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`a469b987b7522f0974cc034b637dd4b905717cf4`
+- 关联上游 PR、Issue 或 Release：PR `#5926`、`#6211`、`#6229`、`#6078`、`#6166`、`#6164`、`#6204`、`#6175`、`#6201`、`#6193`；上游版本更新为 `0.1.183`
+- 主要变更：
+  - 新增按分组路由生成的 Codex 模型目录：结合分组平台、Composite 路由和账号模型映射生成 `/models` 清单，并同步 reasoning effort、输入模态、上下文窗口等能力元数据。
+  - API Key 模型目录缓存按密钥和路由范围隔离；管理端 API Key 使用弹窗新增 Codex 模型目录展示，并补充 DeepSeek Codex 默认能力和非 OpenAI 分组兼容。
+  - Composite 支持精确账号模型别名路由，避免映射后的模型名称在账号选择与实际转发之间失配。
+  - OpenAI 请求支持 `session-id` affinity；sticky 账号容量溢出时只临时换号，不再永久改写绑定；工具调用恢复保持正确 item ID 类型，并记录错误实际命中的上游 endpoint。
+  - 邮箱换绑增加 alias 去重和事务级并发保护，避免别名重复绑定或竞态写入。
+  - Antigravity compatible token 上限收敛至 `64000`；Kimi 并发限制 `403` 保持可恢复，不再永久标记账号错误；修复 Channel Monitor v2 composite 查询中的空值 SQL 处理。
+- 数据库迁移：本次上游范围没有新增数据库迁移文件。
+- 定制代码影响：
+  - `site_favicon` 的设置存储、管理端上传、公开 API、SSR 注入和运行时更新链路完整保留；独立 favicon 的 5 个嵌入测试全部通过。
+  - USDT 充值页、卡网充值菜单、深色主题、OpenResty 脚本、安装手册和构建/合入文档均保留；前端全量测试覆盖相关入口。
+  - `deploy/docker-compose.yml` 继续使用阿里云 ACR 镜像 `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名保持为 `xingliux`。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check d09a66306687473537f3d64025dbf582baaa43e5 a469b987b7522f0974cc034b637dd4b905717cf4`：通过。
+  - Go `1.27.0` 下执行 `env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy go test ./...`：通过；首次带本机代理运行时仅阿里云验证码 SDK 的 4 个本地 HTTP 模拟测试被代理返回 `502`，清除代理后专项和全量复测均通过。
+  - `pnpm run typecheck`：通过。
+  - `pnpm run test:run`：`248` 个测试文件、`1773` 个测试全部通过。
+  - `pnpm run build`：通过；仅有 Browserslist 数据过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+  - `bash deploy/tests/docker-compose-gateway-env-test.sh` 和 `bash deploy/tests/docker-compose-security-test.sh`：通过。
+- 镜像或部署验证：已基于合并提交 `a469b987b7522f0974cc034b637dd4b905717cf4` 完成 `linux/amd64` Docker build/push；镜像内置版本为 `0.1.183`、提交号为 `a469b987b7522f0974cc034b637dd4b905717cf4`，本地镜像 ID 为 `sha256:77fa337717028ff2fd38874f544bb261e05a1c7f1aed074b8abb6f9dee7c4bdb`，大小为 `138935649` 字节，ACR `latest` manifest digest 为 `sha256:cf027662c566412196d71d5b7e2dd51283ff97959235d9e961f7a8367d3d7309`。镜像运行时版本、远端清单回读和 `docker pull` 均验证通过；未连接、更新或重启生产服务。
+- 合入总结：
+  - 本次同步重点是按实际路由生成 Codex 模型目录和能力元数据，同时提升 Composite 模型映射、OpenAI 会话亲和、工具恢复及上游端点观测的正确性。
+  - `xingliux` 的 favicon、充值入口、主题和生产部署定制均已保留；本次无需新增数据库迁移，生产拉取新镜像后应重点验证 API Key 模型目录、Composite 别名、`session-id` affinity、长连接工具续接以及 Kimi/Antigravity 兼容性。
+
 ### 2026-08-25：同步 upstream/main 的 0.1.182 OAuth 429 调度修复
 
 - 合入前定制分支提交：`3f00cb75f28d98d264a1f0818d22997d6308d3cb`
