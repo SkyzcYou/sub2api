@@ -100,6 +100,7 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
   - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
   - `bash deploy/tests/docker-compose-gateway-env-test.sh` 和 `bash deploy/tests/docker-compose-security-test.sh`：通过。
 - 镜像或部署验证：已基于合并提交 `a469b987b7522f0974cc034b637dd4b905717cf4` 完成 `linux/amd64` Docker build/push；镜像内置版本为 `0.1.183`、提交号为 `a469b987b7522f0974cc034b637dd4b905717cf4`，本地镜像 ID 为 `sha256:77fa337717028ff2fd38874f544bb261e05a1c7f1aed074b8abb6f9dee7c4bdb`，大小为 `138935649` 字节，ACR `latest` manifest digest 为 `sha256:cf027662c566412196d71d5b7e2dd51283ff97959235d9e961f7a8367d3d7309`。镜像运行时版本、远端清单回读和 `docker pull` 均验证通过；未连接、更新或重启生产服务。
+- 后续发布补充（2026-08-27）：再次执行 `git fetch upstream main --prune` 后确认 `upstream/main` 仍为 `efb46db0a960fdad94502b1c3a982a0051cf5245`，相对本地落后数为 `0`，显式合并返回 `Already up to date`，因此没有新增上游提交或迁移。按发布要求基于当前提交 `0644586b798cba2c3d6f081fd62add0845dc794c` 重新构建并推送同版本镜像；本地镜像 ID 更新为 `sha256:8dba52e9f6e9510511b3c27be68dfe368263cf0c7c7e9a1aec9210dabf554163`，ACR `latest` digest 更新为 `sha256:950c600fa7ee2a41d2827adf4c124e01b211cb99a45c7982683df6e40896e72c`。运行时版本、远端清单回读和 `docker pull` 再次通过，仍未更新或重启生产服务。
 - 合入总结：
   - 本次同步重点是按实际路由生成 Codex 模型目录和能力元数据，同时提升 Composite 模型映射、OpenAI 会话亲和、工具恢复及上游端点观测的正确性。
   - `xingliux` 的 favicon、充值入口、主题和生产部署定制均已保留；本次无需新增数据库迁移，生产拉取新镜像后应重点验证 API Key 模型目录、Composite 别名、`session-id` affinity、长连接工具续接以及 Kimi/Antigravity 兼容性。

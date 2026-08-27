@@ -56,10 +56,10 @@ docker pull "$IMAGE:latest"
 
 - Source branch: `xingliux`
 - Version: `0.1.183`
-- Source revision: `a469b987b7522f0974cc034b637dd4b905717cf4`
+- Source revision: `0644586b798cba2c3d6f081fd62add0845dc794c`
 - Platform: `linux/amd64`
-- Local image ID: `sha256:77fa337717028ff2fd38874f544bb261e05a1c7f1aed074b8abb6f9dee7c4bdb`
+- Local image ID: `sha256:8dba52e9f6e9510511b3c27be68dfe368263cf0c7c7e9a1aec9210dabf554163`
 - Local image size: `138935649` bytes
-- ACR manifest digest: `sha256:cf027662c566412196d71d5b7e2dd51283ff97959235d9e961f7a8367d3d7309`
+- ACR manifest digest: `sha256:950c600fa7ee2a41d2827adf4c124e01b211cb99a45c7982683df6e40896e72c`
 - Published at: `2026-08-27`
 - Production deployment: not updated or restarted by this build/push operation
