@@ -66,6 +66,38 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-08-29：同步 upstream/main 至 0.1.183（99 个上游提交）
+
+- 合入前定制分支提交：`aa156f92b521634222a44d24e94f5e4ff19476eb`
+- 上游共同基线提交：`efb46db0a960fdad94502b1c3a982a0051cf5245`
+- 本次合入的上游目标提交：`b5827cfd54d58c248a9480b800444d0b40f0c6ea`
+- 上游提交范围：`efb46db0a960fdad94502b1c3a982a0051cf5245..b5827cfd54d58c248a9480b800444d0b40f0c6ea`
+- 上游提交数量：`99`（其中非合并提交 `49`）
+- 变更范围：`199` 个文件，新增 `8368` 行，删除 `647` 行
+- 合入方式：`git merge --no-ff --no-edit upstream/main`
+- 合入后提交：`a83c4d4589732f8876ac5f4ec89e112885a73112`
+- 上游版本：`0.1.183`
+- 主要变更：
+  - 修正 DeepSeek 官方峰谷费率及带后缀模型定价；修复 Anthropic/Fable 调度阈值、OAuth system prompt 和工具参数处理。
+  - 新增 Codex API Key 内联认证；完善 OpenAI 流式/非流式 failover、Responses SSE keepalive、WebSocket 语义限流、Spark 429 配额语义、Claude Code session sticky routing、工具恢复和多模态工具输出。
+  - 修复 Grok prompt cache key、Codex Responses 清理、无效工具 union、xhigh 推理档位，以及 Anthropic attribution headers、Bedrock/Anthropic transport failover。
+  - 修复 EasyPay payurl/qrcode 与币种显示；用量记录展示请求前 reasoning effort；新增 GLM Coding Plan 用量查询。
+  - 管理员可限制用户可访问的公共分组；SMTP TLS 模式保持；新增数据库迁移 `231_add_usage_log_requested_reasoning_effort.sql` 和 `231_user_restrict_public_groups.sql`。
+- 定制代码影响：
+  - `site_favicon` 独立设置链路、USDT 与卡网充值入口、深色主题、OpenResty 代理脚本及部署文档均保留。
+  - `deploy/docker-compose.yml` 继续使用阿里云 ACR 镜像 `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名保持为 `xingliux`。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check aa156f92b521634222a44d24e94f5e4ff19476eb a83c4d4589732f8876ac5f4ec89e112885a73112`：通过。
+  - 清除代理变量后执行 `go test ./...`：通过；带本机代理运行时仅 4 个阿里云验证码本地模拟用例因代理返回 `502`，清除代理后全量通过。
+  - `pnpm run typecheck`：通过。
+  - `pnpm run test:run`：`250` 个测试文件、`1790` 个测试全部通过。
+  - `pnpm run build`：通过；仅有 Browserslist 过期、动态/静态混合导入和大分包提示。
+  - `go test -tags embed ./internal/web -run '^TestInjectSiteFavicon$' -count=1 -v`：`5` 个 favicon 子测试全部通过。
+  - `go test ./migrations -count=1 -v`、`bash deploy/tests/docker-compose-gateway-env-test.sh`、`bash deploy/tests/docker-compose-security-test.sh`：均通过。
+- 镜像或部署验证：已基于合并提交 `a83c4d4589732f8876ac5f4ec89e112885a73112` 完成 `linux/amd64` Docker build/push；镜像内置版本为 `0.1.183`，本地镜像 ID 为 `sha256:b546eca8eec272e29371deea340fd355cb34634d179379a276dcfff540338853`，大小为 `139058911` 字节，ACR `latest` manifest digest 为 `sha256:ceadf7813230379a81f54893a85e1ea23f028847a88a006dcd9c97981911f6ed`。运行时版本、远端清单回读和 `docker pull` 均验证通过；未连接、更新或重启生产服务。
+- 合入总结：本次同步将上游网关兼容性、故障转移、调度、计费、工具调用和管理能力更新合入 `xingliux`，同时保留本地 favicon、充值、主题、代理和部署定制；生产部署前需按上游要求执行新增的 231 号数据库迁移。
+
 ### 2026-08-27：同步 upstream/main 至 0.1.183
 
 - 合入前定制分支提交：`d09a66306687473537f3d64025dbf582baaa43e5`
