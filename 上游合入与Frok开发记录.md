@@ -66,6 +66,37 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-09-01：同步 upstream/main 至 0.1.184（76 个上游提交）
+
+- 合入前定制分支提交：`cc02090ddc3cdde7d10beef6ac52aa99a5480bdc`
+- 上游共同基线提交：`b5827cfd54d58c248a9480b800444d0b40f0c6ea`
+- 本次合入的上游目标提交：`2ac784c51a5d0925b324efef2ba6b3446c364781`
+- 上游提交范围：`b5827cfd54d58c248a9480b800444d0b40f0c6ea..2ac784c51a5d0925b324efef2ba6b3446c364781`
+- 上游提交数量：`76`（其中非合并提交 `50`）
+- 变更范围：`185` 个文件，新增 `6316` 行，删除 `1234` 行
+- 合入方式：`git merge --no-ff --no-edit upstream/main`
+- 合入后提交：`b9728bab9a5e2734af74e44ab6824881c589591e`
+- 上游版本：`0.1.184`
+- 主要变更：
+  - 价格与计费改为价格目录驱动，新增 `override_file` 覆盖补丁、长上下文阶梯计价和 Gemini Pro 缓存写入价修正，并修复账户统计成本计价策略。
+  - OpenAI/Codex 增强 API Key 与 OAuth 认证、模型目录能力保留、优先级档位、Responses 视觉工具输出、WebSocket 空闲连接回收、隔离与超大透传请求处理。
+  - 新增原生 compaction 用量记录和图片工具冷却策略；修复 Anthropic→Responses 流式 thinking 转换、上下文池降载错误码、OpenAI delegation bootstrap 以及账号配额冷却。
+  - Ollama Cloud 用量窗口支持挂载到国产三家平台；管理员分组局部更新保留配额限制，监控分组按用户访问范围隔离。
+  - 前端统一用量窗口和兑换码过期时间处理，明确本地时区提示并补充跨时区测试；修复隐藏缓存提示造成的横向滚动。
+  - 新增数据库迁移 `231_add_usage_log_native_compaction_v2.sql`；与本地保留的 `231_add_usage_log_requested_reasoning_effort.sql`、`231_user_restrict_public_groups.sql` 并存，迁移按文件名记录和校验。
+- 定制代码影响：
+  - `site_favicon` 独立设置链路、USDT 与卡网充值入口、深色主题、OpenResty 代理脚本及部署文档均保留。
+  - `deploy/docker-compose.yml` 继续使用阿里云 ACR 镜像 `crpi-b1po1b8mfjqfuj2k.cn-shenzhen.personal.cr.aliyuncs.com/skyzcstack/xingliux:latest`，主容器名保持为 `xingliux`。
+- 冲突处理：无。Git `ort` 自动合并成功，未产生冲突文件。
+- 验证结果：
+  - `git diff --check cc02090ddc3cdde7d10beef6ac52aa99a5480bdc b9728bab9a5e2734af74e44ab6824881c589591e`：通过。
+  - Go 1.27.0 下清除代理变量执行 `go test ./...`：全部通过。
+  - `pnpm run typecheck`：通过。
+  - `pnpm run test:run`：`251` 个测试文件、`1810` 个测试全部通过；仅有既有 Vue/jsdom、Intlify 和 Browserslist 警告。
+  - `pnpm run build`：通过；仅有 Browserslist、动态/静态导入和大分包提示。
+- 镜像或部署验证：第一次 Docker 构建因 Corepack 访问默认 npm registry 网络失败，重试并使用 `NPM_CONFIG_REGISTRY=https://registry.npmmirror.com` 后成功；已基于合并提交 `b9728bab9a5e2734af74e44ab6824881c589591e` 完成 `linux/amd64` Docker build/push。镜像内置版本为 `0.1.184`，本地镜像 ID 为 `sha256:b9ae05328b2c08f3ca24d3c39e59cce4266e5a687b1d4e00f40b5008b93674be`，大小为 `139133436` 字节，ACR `latest` manifest digest 为 `sha256:be4719673891de9015a622e4657fab467f68f85d13de4f89f403646138aa4816`。运行时版本、远端清单回读和 `docker pull` 均验证通过；未连接、更新或重启生产服务。
+- 合入总结：本次同步将 `0.1.184` 的价格目录、长上下文计费、OpenAI/Codex WebSocket 与认证、原生 compaction 用量、Ollama Cloud 和前端时区处理合入 `xingliux`，同时保留本地特色功能。生产部署前需执行新增的 `231_add_usage_log_native_compaction_v2.sql`，并确认本地两个 231 号迁移均已按环境状态应用。
+
 ### 2026-08-29：同步 upstream/main 至 0.1.183（99 个上游提交）
 
 - 合入前定制分支提交：`aa156f92b521634222a44d24e94f5e4ff19476eb`
