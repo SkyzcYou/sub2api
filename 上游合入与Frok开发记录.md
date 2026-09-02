@@ -66,6 +66,36 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-09-02：同步 upstream/main 至 0.1.185（58 个上游提交）
+
+- 合入前定制分支提交：`6d4c0ec9e2a67f57823ea8667903e7534e33a9de`
+- 上游共同基线提交：`2ac784c51a5d0925b324efef2ba6b3446c364781`
+- 本次合入的上游目标提交：`3510aa22b55188b87cc9d602c4e3148143f23f59`
+- 上游最新提交日期：`2026-09-02T10:18:07+08:00`
+- 上游提交范围：`2ac784c51a5d0925b324efef2ba6b3446c364781..3510aa22b55188b87cc9d602c4e3148143f23f59`
+- 上游提交数量：`58`（其中非合并提交 `43`）
+- 变更范围：`147` 个文件，新增 `4901` 行，删除 `535` 行
+- 合入方式：`git merge --no-ff --no-edit upstream/main`
+- 合入后提交：`35d29e9cbf0302f3eb12cb3c73ebf337d1800703`
+- 上游版本：`0.1.185`
+- 主要变更：
+  - 新增分组级 OpenAI Fast 强制、免费 Fast 和推理档位超限拒绝/降级策略，补充模型范围化的 reasoning effort 映射、API Key 快照、管理员配置和数据库迁移。
+  - 新增 Kimi 原生 OpenAI Responses 转发和 Claude Fable 5.1 支持；补充 1 小时缓存写入价格迁移，并修正 Ent 分组字段索引。
+  - 修复 OpenAI WebSocket 在 terminal event 前关闭的处理、API Key Chat 缓存身份、scheduled automation bootstrap、scheduler passthrough 快照和上游端点错误分类。
+  - 修复网关 fallback 清理、按模型 cooldown 错误码覆盖、Anthropic fallback beta 条件和相关 OpenAI/Codex 请求路径的兼容性。
+- 定制代码影响：
+  - `site_favicon` 独立设置链路、USDT 与卡网充值入口、深色主题、OpenResty 代理脚本及部署文档均保留。
+  - `deploy/docker-compose.yml`、`deploy/docker-compose.local.yml` 和 `deploy/docker-compose.standalone.yml` 继续使用阿里云 ACR 镜像，主生产容器名保持为 `xingliux`。
+- 冲突处理：无。Git `ort` 自动合并成功，唯一重叠修改的 `frontend/src/types/index.ts` 已同时保留本地字段和上游新增字段。
+- 验证结果：
+  - `git diff --check 6d4c0ec9e2a67f57823ea8667903e7534e33a9de 35d29e9cbf0302f3eb12cb3c73ebf337d1800703`：通过。
+  - 在 `golang:1.27.0-alpine` 容器中执行 `go test ./...`：全部通过。
+  - `pnpm --dir frontend run typecheck`：通过。
+  - `pnpm --dir frontend run test:run`：`253` 个测试文件、`1830` 个测试全部通过。
+  - `pnpm --dir frontend run build`：通过；仅有既有 Browserslist、动态/静态导入和大分包提示。
+- 镜像或部署验证：已基于合并提交 `35d29e9cbf0302f3eb12cb3c73ebf337d1800703` 完成 `linux/amd64` Docker build/push。镜像内置版本为 `0.1.185`，本地镜像 ID 为 `sha256:d97252ecb0f6cdcafa6528c8dd1a039635a7650223b5a2ec94088ef2ba74ad13`，大小为 `139256316` 字节，ACR `latest` manifest digest 为 `sha256:759151f23c37b8a8b5f72850239b419dd6e0ddf797d05e06aacb132d4fbf8550`。容器运行时版本、`docker buildx imagetools inspect` 和 `docker pull` 均验证通过；未连接、更新或重启生产服务。
+- 合入总结：本次同步将 `0.1.185` 的 OpenAI Fast/推理策略、Kimi Responses、Claude Fable 5.1、WebSocket 和网关错误处理更新合入 `xingliux`，同时保留本地特色功能。生产部署前需执行新增的 `232_channel_cache_write_1h_pricing.sql`、`232_group_force_openai_fast.sql`、`232_group_reasoning_effort_over_limit.sql` 和 `233_group_free_openai_fast.sql` 数据库迁移。
+
 ### 2026-09-01：同步 upstream/main 至 0.1.184（76 个上游提交）
 
 - 合入前定制分支提交：`cc02090ddc3cdde7d10beef6ac52aa99a5480bdc`
