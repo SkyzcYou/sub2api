@@ -66,6 +66,35 @@ docker build -t <registry>/<namespace>/xingliux:<tag> .
 
 ## 合入记录
 
+### 2026-09-02：同步 upstream/main 至 0.2.0（3 个上游提交）
+
+- 合入前定制分支提交：`92aeb3f1a1c632b77e662c8040e22b1ef7bc3246`
+- 上游共同基线提交：`3510aa22b55188b87cc9d602c4e3148143f23f59`
+- 本次合入的上游目标提交：`5097b31457e6dc9f49e5f5c9c72b925ce79543b3`
+- 上游最新提交日期：`2026-09-02T03:24:57Z`
+- 上游提交范围：`3510aa22b55188b87cc9d602c4e3148143f23f59..5097b31457e6dc9f49e5f5c9c72b925ce79543b3`
+- 上游提交数量：`3`（其中非合并提交 `2`）
+- 变更范围：`5` 个文件，新增 `28` 行，删除 `11` 行
+- 合入方式：`git merge --no-ff upstream/main`
+- 合入后提交：`1f0020c95a9822cffcea4414bcbc0f910e181056`
+- 上游版本：`0.2.0`
+- 主要变更：
+  - 将分组模型定价和默认价格输入改为自适应网格，按可用宽度排列定价字段，减少窄窗口下的拥挤和溢出。
+  - 将分组创建/编辑弹窗调整为宽布局，模型定价标题区支持换行，并保持新增按钮固定尺寸和可见性。
+  - 补充分组模型列表布局回归测试，并同步版本号至 `0.2.0`。
+- 定制代码影响：
+  - `site_favicon` 独立设置链路、USDT 与卡网充值入口、深色主题、OpenResty 代理脚本及部署文档均保留。
+  - `deploy/docker-compose.yml`、`deploy/docker-compose.local.yml` 和 `deploy/docker-compose.standalone.yml` 继续使用阿里云 ACR 镜像，主生产容器名保持为 `xingliux`。
+- 冲突处理：无。Git `ort` 自动合并成功；上游修改的 5 个文件均与本地定制正确合并，本地特色文件未被删除或覆盖。
+- 验证结果：
+  - `git diff --check 92aeb3f1a1c632b77e662c8040e22b1ef7bc3246 1f0020c95a9822cffcea4414bcbc0f910e181056`：通过。
+  - 使用 Go `1.27.0`、`GOPROXY=https://goproxy.cn,direct` 执行 `go test ./...`：全部通过；首次使用默认 `proxy.golang.org` 时因网络超时，切换代理后重跑通过。
+  - `pnpm --dir frontend run typecheck`：通过。
+  - `pnpm --dir frontend run test:run`：`253` 个测试文件、`1831` 个测试全部通过。
+  - `pnpm --dir frontend run build`：通过；仅有既有 Browserslist、动态/静态导入和大分包提示。
+- 镜像或部署验证：已基于合并提交 `1f0020c95a9822cffcea4414bcbc0f910e181056` 完成 `linux/amd64` Docker build/push。镜像内置版本为 `0.2.0`，本地镜像 ID 为 `sha256:f3bfe6a96656652b02138316e954a4fcc9a034cfd8597473e1832d48523fc76a`，大小为 `139256316` 字节，ACR `latest` manifest digest 为 `sha256:0475f979db23244aa1760b838cf991d9bdd0ab4777284b98dfe989a976eda747`。远端 `docker buildx imagetools inspect`、`docker pull`、镜像架构和容器 `--version` 回读均验证通过；未连接、更新或重启生产服务。
+- 合入总结：本次同步将 `0.2.0` 的分组模型定价弹窗响应式布局和版本更新合入 `xingliux`，同时保留本地 favicon、充值、主题、OpenResty 和 ACR 部署定制。
+
 ### 2026-09-02：同步 upstream/main 至 0.1.185（58 个上游提交）
 
 - 合入前定制分支提交：`6d4c0ec9e2a67f57823ea8667903e7534e33a9de`
